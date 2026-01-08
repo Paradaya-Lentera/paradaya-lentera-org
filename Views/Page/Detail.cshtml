@@ -37,42 +37,7 @@
 
     @if (User.Identity?.IsAuthenticated == true)
     {
-        @if (Model.IsLocal && Model.LocalBookId.HasValue)
-        {
-            @if (Model.IsInReadingList)
-            {
-                <!-- FAVORIT -->
-                <button id="favoriteBtn"
-                        class="action-btn btn-favorite w-100 mb-2"
-                        onclick="toggleFavorite(@Model.ReadingListId)">
-                    <i class="fas fa-star"></i> @(Model.IsFavorite ? "Favorit" : "Tambah Favorit")
-                </button>
-
-                <!-- SELESAI DIBACA -->
-                <button id="readBtn"
-                        class="action-btn btn-read w-100 mb-2"
-                        onclick="toggleRead(@Model.ReadingListId)">
-                    <i class="fas fa-check"></i> @(Model.IsRead ? "Selesai Dibaca" : "Belum Dibaca")
-                </button>
-
-                <!-- HAPUS DARI LIST -->
-                <button id="readingListBtn"
-                        class="action-btn btn-remove w-100"
-                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
-                    <i class="fas fa-trash"></i> Hapus dari Daftar
-                </button>
-            }
-            else
-            {
-                <!-- TAMBAH KE LIST -->
-                <button id="readingListBtn"
-                        class="action-btn btn-add"
-                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
-                    <i class="fas fa-bookmark"></i> Simpan Ke Daftar
-                </button>
-            }
-        }
-        else
+        @if (!Model.IsLocal || !Model.LocalBookId.HasValue)
         {
             <form asp-controller="Search" asp-action="AddToReadingList" method="post" class="w-100">
                 <input type="hidden" name="title" value="@Model.Title" />
@@ -225,41 +190,3 @@
                 </div>
                 <div class="spec-item">
                     <div class="spec-label">Terbit</div>
-                    <div class="spec-value dynamic-data" id="bookYear">
-                        @if (Model.Year.HasValue)
-                        {
-                            @Model.Year.Value.ToString()
-                        }
-                        else
-                        {
-                            <span>-</span>
-                        }
-                    </div>
-                </div>
-                <div class="spec-item">
-                    <div class="spec-label">Penerbit</div>
-                    <div class="spec-value dynamic-data" id="bookPublisher">@Model.Publisher</div>
-                </div>
-                <div class="spec-item">
-                    <div class="spec-label">ISBN</div>
-                    <div class="spec-value dynamic-data" id="bookIsbn">@(string.IsNullOrEmpty(Model.Isbn) ? "-" : Model.Isbn)</div>
-                </div>
-                @if (!string.IsNullOrEmpty(Model.Language))
-                {
-                    <div class="spec-item">
-                        <div class="spec-label">Bahasa</div>
-                        <div class="spec-value dynamic-data" id="bookLanguage">@Model.Language</div>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="~/js/detail.js"></script>
-    <script src="~/js/detail-extra.js"></script>
-    <script>
-        let isInReadingList = @(Model.IsInReadingList.ToString().ToLower());
-    </script>
-}
