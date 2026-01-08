@@ -59,7 +59,7 @@
                  onload="handleImageLoad(this)"
                  onerror="handleImageTimeout(this)"
                  data-timeout-id="">
-            
+            <div class="offline-badge">OFFLINE</div>
         </div>
 
         <div class="book-info">
@@ -115,6 +115,10 @@
                 
                 <button class="btn-remove" onclick="removeFromReadingList(@item.Id, event)" title="Hapus dari Daftar Bacaan">
                     <i class="fas fa-times"></i>
+                </button>
+
+                <button class="btn-offline" onclick="toggleOffline(@item.BookId, event)" title="Simpan untuk Offline" id="offline-btn-@item.BookId">
+                    <i class="fas fa-cloud-download-alt"></i>
                 </button>
             </div>
         </div>

@@ -1,17 +1,63 @@
 .reading-card-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px 8px 0 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
 }
 
 .status-badge-custom {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-transform: uppercase;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.btn-offline {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-muted, #a0aec0);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-offline:hover {
+  background: rgba(66, 153, 225, 0.2);
+  color: #4299e1;
+  transform: translateY(-2px);
+}
+
+.btn-offline.cached {
+  color: #48bb78;
+  background: rgba(72, 187, 120, 0.2);
+}
+
+.btn-offline i {
+  font-size: 1.1rem;
+}
+
+.offline-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #48bb78;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  display: none;
+}
+
+.book-card.is-offline .offline-badge {
+  display: block;
 }
