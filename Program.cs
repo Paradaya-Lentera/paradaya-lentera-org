@@ -1,0 +1,72 @@
+using paradaya_lentera.Services.Local;
+using paradaya_lentera.Services.External;
+using paradaya_lentera.Data;
+using paradaya_lentera.Middleware;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IReadingListService, ReadingListService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
+builder.Services.AddScoped<ICachedSearchService, CachedSearchService>();
+
+builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>();
+
+const int authCookieExpirationDays = 7;
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.AccessDeniedPath = "/Unauthorized/Index";
+        options.ExpireTimeSpan = TimeSpan.FromDays(authCookieExpirationDays);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    });
+
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DbSeeder.SeedAsync(context, userService, logger);
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Page/Error");
+    app.UseHsts();
+}
+
+app.UseGlobalExceptionHandler();
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Page}/{action=Index}/{id?}");
+
+app.Run();

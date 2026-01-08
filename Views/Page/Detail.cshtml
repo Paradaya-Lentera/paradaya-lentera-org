@@ -1,0 +1,265 @@
+@model paradaya_lentera.Models.ViewModels.BookDetailViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/detail.css">
+    <link rel="stylesheet" href="~/css/detail-extra.css">
+}
+
+<div class="detail-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a asp-controller="Page" asp-action="Index">Home</a>
+        <span class="breadcrumb-separator">›</span>
+        <a asp-controller="Search" asp-action="Index">Browse</a>
+        <span class="breadcrumb-separator">›</span>
+        <span id="breadcrumbTitle">@Model.Title</span>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="detail-content" id="bookDetail" 
+         data-is-in-reading-list="@Model.IsInReadingList.ToString().ToLower()"
+         data-book-id="@Model.LocalBookId"
+         data-reading-list-id="@Model.ReadingListId">
+
+        <!-- Cover Section -->
+        <div class="detail-cover-section">
+            <div class="detail-cover-wrapper">
+                <div class="detail-cover" id="bookCover" style="background: url('@Model.CoverUrl'), linear-gradient(135deg, #667eea, #764ba2);">
+                    @if (string.IsNullOrEmpty(Model.CoverUrl)) {
+                        <i class="fas fa-book" style="font-size: 6rem; opacity: 0.3; color: white;"></i>
+                    }
+                </div>
+            </div>
+            <div class="detail-actions">
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        @if (Model.IsLocal && Model.LocalBookId.HasValue)
+        {
+            @if (Model.IsInReadingList)
+            {
+                <!-- FAVORIT -->
+                <button id="favoriteBtn"
+                        class="action-btn btn-favorite w-100 mb-2"
+                        onclick="toggleFavorite(@Model.ReadingListId)">
+                    <i class="fas fa-star"></i> @(Model.IsFavorite ? "Favorit" : "Tambah Favorit")
+                </button>
+
+                <!-- SELESAI DIBACA -->
+                <button id="readBtn"
+                        class="action-btn btn-read w-100 mb-2"
+                        onclick="toggleRead(@Model.ReadingListId)">
+                    <i class="fas fa-check"></i> @(Model.IsRead ? "Selesai Dibaca" : "Belum Dibaca")
+                </button>
+
+                <!-- HAPUS DARI LIST -->
+                <button id="readingListBtn"
+                        class="action-btn btn-remove w-100"
+                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
+                    <i class="fas fa-trash"></i> Hapus dari Daftar
+                </button>
+            }
+            else
+            {
+                <!-- TAMBAH KE LIST -->
+                <button id="readingListBtn"
+                        class="action-btn btn-add"
+                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
+                    <i class="fas fa-bookmark"></i> Simpan Ke Daftar
+                </button>
+            }
+        }
+        else
+        {
+            <form asp-controller="Search" asp-action="AddToReadingList" method="post" class="w-100">
+                <input type="hidden" name="title" value="@Model.Title" />
+                <input type="hidden" name="author" value="@Model.Author" />
+                <input type="hidden" name="thumbnail" value="@Model.CoverUrl" />
+                <input type="hidden" name="year" value="@(Model.Year ?? 0)" />
+                <input type="hidden" name="pages" value="@(Model.Pages ?? 0)" />
+                <input type="hidden" name="isbn" value="@Model.Isbn" />
+
+                <button type="submit" class="action-btn btn-add w-100">
+                    <i class="fas fa-bookmark"></i> Simpan Ke Daftar
+                </button>
+            </form>
+        }
+    }
+    else
+    {
+        <a asp-controller="Auth"
+           asp-action="Login"
+           asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString"
+           class="action-btn btn-add"
+           style="text-decoration:none;">
+            <i class="fas fa-lock"></i> Login untuk Menambahkan
+        </a>
+    }
+                
+                @if (!string.IsNullOrEmpty(Model.BorrowUrl) || !string.IsNullOrEmpty(Model.IaId))
+                {
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Page" asp-action="Read" 
+                           asp-route-id="@Model.LocalBookId" 
+                           asp-route-isbn="@Model.Isbn" 
+                           asp-route-olkey="@Model.OlKey" 
+                           class="btn-secondary btn-preview"
+                           target="_blank">
+                            <i class="fas fa-book-open"></i> Baca Sekarang
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Auth" asp-action="Login" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" class="btn-secondary btn-preview">
+                            <i class="fas fa-lock"></i> Login untuk Baca
+                        </a>
+                    }
+                }
+                else
+                {
+                    <button class="btn-secondary btn-preview" disabled title="@(Model.IsLocal ? "Baca online tidak tersedia untuk buku lokal" : "Baca online tidak tersedia untuk buku ini")">
+                        <i class="fas fa-book-open"></i> Baca Sekarang
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="detail-info-section">
+            <div class="detail-header">
+                <div class="detail-rating">
+                    <span class="rating-stars"><i class="fas fa-star" style="color: var(--accent-yellow);"></i></span>
+                    <span class="rating-number dynamic-data" id="bookRating">
+                        @if (Model.Rating.HasValue)
+                        {
+                            @Model.Rating.Value.ToString("0.0")
+                        }
+                        else
+                        {
+                            <span class="loading-spinner"></span>
+                        }
+                    </span>
+                    <span class="rating-divider">•</span>
+                    <span class="rating-details">Rating dari Open Library</span>
+                </div>
+                <h1 class="detail-title" id="bookTitle">@Model.Title</h1>
+                @if (!string.IsNullOrEmpty(Model.Subtitle))
+                {
+                    <h2 class="detail-subtitle" style="font-size: 1.2rem; color: #666; margin-top: 0.5rem;">@Model.Subtitle</h2>
+                }
+                <a href="#" class="detail-author" id="bookAuthor">@Model.Author</a>
+                <div class="detail-tags" id="bookTags" style="margin-top: 1rem;">
+                    @if (Model.IsLocal)
+                    {
+                        <span class="tag">Lokal</span>
+                    }
+                    else
+                    {
+                        <span class="tag">Open Library</span>
+                    }
+                    @if (Model.Subjects?.Any() == true)
+                    {
+                        @foreach (var subject in Model.Subjects.Take(3))
+                        {
+                            <span class="tag">@subject</span>
+                        }
+                    }
+                    @if (!string.IsNullOrEmpty(Model.BorrowUrl))
+                    {
+                        <span class="tag tag-green">Tersedia</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Synopsis -->
+            <div class="synopsis-section">
+                <h2 class="section-title">Sinopsis</h2>
+                <div class="synopsis-text dynamic-data" id="bookSynopsis">
+                    @if (Model.Synopsis != "-")
+                    {
+                        <div class="synopsis-content">
+                            <p id="synopsisShort">@Model.GetTruncatedSynopsis()</p>
+                            @if (Model.ShouldTruncateSynopsis())
+                            {
+                                <p id="synopsisFull" style="display: none;">@Model.GetCleanSynopsis()</p>
+                                <button id="toggleSynopsis" class="btn-link" onclick="toggleSynopsisText()" style="color: #007bff; background: none; border: none; padding: 0; font-size: 0.9rem; cursor: pointer; margin-top: 0.5rem;">
+                                    Lihat Selengkapnya
+                                </button>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="font-style: italic; color: #666;">
+                            @if (Model.IsLocal)
+                            {
+                                @:Sinopsis tidak tersedia. Data sedang diperkaya dari Open Library...
+                            }
+                            else
+                            {
+                                @:Sinopsis tidak tersedia untuk buku ini.
+                            }
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <!-- Specifications -->
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Halaman</div>
+                    <div class="spec-value dynamic-data" id="bookPages">
+                        @if (Model.Pages.HasValue)
+                        {
+                            @Model.Pages.Value.ToString()
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Terbit</div>
+                    <div class="spec-value dynamic-data" id="bookYear">
+                        @if (Model.Year.HasValue)
+                        {
+                            @Model.Year.Value.ToString()
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Penerbit</div>
+                    <div class="spec-value dynamic-data" id="bookPublisher">@Model.Publisher</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">ISBN</div>
+                    <div class="spec-value dynamic-data" id="bookIsbn">@(string.IsNullOrEmpty(Model.Isbn) ? "-" : Model.Isbn)</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Language))
+                {
+                    <div class="spec-item">
+                        <div class="spec-label">Bahasa</div>
+                        <div class="spec-value dynamic-data" id="bookLanguage">@Model.Language</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/detail.js"></script>
+    <script src="~/js/detail-extra.js"></script>
+    <script>
+        let isInReadingList = @(Model.IsInReadingList.ToString().ToLower());
+    </script>
+}

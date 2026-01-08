@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Cache Management";
+    Layout = "~/Views/Shared/Layouts/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Cache Management</h2>
+            <p class="text-muted">Manage application cache for better performance</p>
+            
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Search Cache</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Search results are cached for 7 minutes to improve performance and reduce API calls.
+                    </p>
+                    <form asp-action="ClearSearchCache" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to clear search cache?')">
+                            <i class="fas fa-trash"></i> Clear Search Cache
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Top Saved Books Cache</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Most frequently saved books are cached for 15 minutes to improve homepage performance.
+                    </p>
+                    <form asp-action="ClearTopSavedBooksCache" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to clear top saved books cache?')">
+                            <i class="fas fa-trash"></i> Clear Top Books Cache
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Cache Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div id="cache-stats">
+                        <p>Loading cache statistics...</p>
+                    </div>
+                    <button id="refresh-stats" class="btn btn-info">
+                        <i class="fas fa-refresh"></i> Refresh Stats
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Danger Zone</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Clear All Cache:</strong> This will clear all cached data including search results and top saved books.
+                    </p>
+                    <form asp-action="ClearAllCache" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear ALL cache? This action cannot be undone.')">
+                            <i class="fas fa-exclamation-triangle"></i> Clear All Cache
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/cache.js"></script>
+}

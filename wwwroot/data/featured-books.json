@@ -1,0 +1,94 @@
+{
+  "featured_books": [
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg",
+      "year": 1925,
+      "pages": 180,
+      "isbn": "9780743273565",
+      "description": "A classic American novel set in the Jazz Age, exploring themes of wealth, love, and the American Dream."
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780132350884-L.jpg",
+      "year": 2008,
+      "pages": 464,
+      "isbn": "9780132350884",
+      "description": "A handbook of agile software craftsmanship that teaches the principles of writing clean, readable code."
+    },
+    {
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg",
+      "year": 1965,
+      "pages": 688,
+      "isbn": "9780441172719",
+      "description": "An epic science fiction novel set on the desert planet Arrakis, featuring political intrigue and mystical powers."
+    },
+    {
+      "title": "1984",
+      "author": "George Orwell",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg",
+      "year": 1949,
+      "pages": 328,
+      "isbn": "9780451524935",
+      "description": "A dystopian social science fiction novel about totalitarian control and surveillance in a future society."
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg",
+      "year": 1960,
+      "pages": 376,
+      "isbn": "9780061120084",
+      "description": "A gripping tale of racial injustice and childhood innocence in the American South."
+    },
+    {
+      "title": "Pride and Prejudice",
+      "author": "Jane Austen",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780141439518-L.jpg",
+      "year": 1813,
+      "pages": 432,
+      "isbn": "9780141439518",
+      "description": "A romantic novel of manners exploring love, marriage, and social class in Regency England."
+    },
+    {
+      "title": "Harry Potter and the Philosopher's Stone",
+      "author": "J.K. Rowling",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780747532699-L.jpg",
+      "year": 1997,
+      "pages": 223,
+      "isbn": "9780747532699",
+      "description": "The first book in the magical Harry Potter series, following a young wizard's journey at Hogwarts."
+    },
+    {
+      "title": "The Lord of the Rings",
+      "author": "J.R.R. Tolkien",
+      "thumbnail": "https://covers.openlibrary.org/b/isbn/9780544003415-L.jpg",
+      "year": 1954,
+      "pages": 1216,
+      "isbn": "9780544003415",
+      "description": "An epic high fantasy adventure following the quest to destroy the One Ring and save Middle-earth."
+    }
+  ],
+  "categories": [
+    {
+      "name": "Fiction",
+      "books": ["The Great Gatsby", "To Kill a Mockingbird", "Pride and Prejudice"]
+    },
+    {
+      "name": "Science Fiction",
+      "books": ["1984", "Dune"]
+    },
+    {
+      "name": "Fantasy",
+      "books": ["Harry Potter and the Philosopher's Stone", "The Lord of the Rings"]
+    },
+    {
+      "name": "Education",
+      "books": ["Clean Code"]
+    }
+  ]
+}

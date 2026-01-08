@@ -1,0 +1,24 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [ production ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - run: dotnet publish -c Release -o publish
+
+    - uses: azure/webapps-deploy@v3
+      with:
+        app-name: paradaya-lentera
+        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+        package: publish

@@ -1,0 +1,62 @@
+@model paradaya_lentera.Models.ViewModels.BookDetailViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Membaca: @Model.Title - Lentera</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/read.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="read-wrapper">
+        <header class="read-header">
+            <div class="header-left">
+                <a href="javascript:history.back()" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+                <div class="book-info-top">
+                    <h1>@Model.Title</h1>
+                    <p>@Model.Author</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <a asp-controller="Page" asp-action="Detail" 
+                   asp-route-id="@Model.LocalBookId" 
+                   asp-route-isbn="@Model.Isbn" 
+                   asp-route-olkey="@Model.OlKey" 
+                   class="action-icon-btn" title="Informasi Buku">
+                    <i class="fas fa-info-circle"></i>
+                </a>
+                <button onclick="toggleFullscreen()" class="action-icon-btn" title="Layar Penuh">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="viewer-container">
+            <div id="loadingOverlay" class="loading-overlay">
+                <div class="spinner"></div>
+                <p>Membuka buku...</p>
+            </div>
+            
+            <iframe id="bookViewer" 
+                    src="https://archive.org/embed/@Model.IaId?ui=full" 
+                    frameborder="0" 
+                    webkitallowfullscreen="true" 
+                    mozallowfullscreen="true" 
+                    allowfullscreen 
+                    onload="hideLoading()">
+            </iframe>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/read.js" asp-append-version="true"></script>
+</body>
+</html>

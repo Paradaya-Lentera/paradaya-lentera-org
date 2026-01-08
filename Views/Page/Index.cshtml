@@ -1,0 +1,72 @@
+@{
+    ViewData["Title"] = "Lentera - Find Your Next Great Read";
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <h1 class="hero-title">Find your next great read</h1>
+    <p class="hero-subtitle">
+        Search our comprehensive, offline-ready database for millions of titles.<br>
+        Discover classics, tech guides, and novels instantly.
+    </p>
+    @*  *@
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-box">
+            <div class="search-input-wrapper">
+                <span>🔍</span>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by title, author, or ISBN...">
+            </div>
+            <button class="btn-search" onclick="performSearch()">Search</button>
+        </div>
+    </div>
+</section>
+
+<!-- Filters -->
+<div class="filters-section">
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <span class="filter-label">Sort results by:</span>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="relevance">Relevance</button>
+            <button class="filter-btn" data-filter="date">Date Published</button>
+            <button class="filter-btn" data-filter="title">Title (A-Z)</button>
+        </div>
+    </div>
+    <div class="results-count">
+        Showing <span id="resultCount">4</span> results
+    </div>
+</div>
+
+<!-- Books Grid -->
+<div class="books-container">
+    <!-- Featured Books Section (shown before search) -->
+    <div class="featured-books-section" id="featuredBooksSection">
+        <div class="featured-books-header">
+            <h2 class="featured-books-title">Featured Books</h2>
+            <div class="book-source-tabs">
+                <button class="tab-button active" id="load-featured" onclick="switchBookSource('featured')">Featured</button>
+                <button class="tab-button" id="load-popular" onclick="switchBookSource('popular')">Popular</button>
+            </div>
+        </div>
+        <div class="books-grid" id="featuredBooksGrid">
+            <!-- Featured books will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Search Results Section (shown after search) -->
+    <div class="books-grid" id="booksGrid" style="display: none;">
+        <!-- Search results will be loaded here by JavaScript -->
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/image-utils.js"></script>
+    <script src="~/js/featured-books.js"></script>
+    <script src="~/js/lazy-search.js"></script>
+    <script src="~/js/index.js"></script>
+    <script>
+        // Set authentication status for lazy search
+        window.isUserAuthenticated = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
+    </script>
+}
+

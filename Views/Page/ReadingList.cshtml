@@ -1,0 +1,138 @@
+@model IEnumerable<paradaya_lentera.Models.Entities.ReadingList>
+@{
+    ViewData["Title"] = "Daftar Bacaan Saya";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/reading-list.css">
+    <link rel="stylesheet" href="~/css/reading-list-extra.css">
+    <link rel="stylesheet" href="~/css/bookfinder.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+}
+
+<div class="reading-list-container">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Daftar Bacaan Saya</h1>
+        <p class="page-subtitle">Kelola perpustakaan pribadi dan progres membaca Anda.</p>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="reading-list-header">
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-status="all">Semua</button>
+            <button class="tab-btn" data-status="Favorite">Favorit</button>
+            <button class="tab-btn" data-status="Read">Sudah Dibaca</button>
+            <button class="tab-btn" data-status="Unread">Belum Dibaca</button>
+        </div>
+        <div class="header-actions">
+            <button class="btn-add-book" onclick="window.location.href='/Search'">
+                <i class="fas fa-plus"></i> Cari Buku Baru
+            </button>
+        </div>
+    </div>
+
+    <!-- Books Grid -->
+    <div class="books-grid" id="readingListGrid">
+@foreach (var item in Model)
+{
+    <div class="book-card"
+     data-favorite="@item.IsFavorite.ToString().ToLower()"
+     data-read="@item.IsRead.ToString().ToLower()"
+     onclick="viewBookDetail(@item.BookId)"
+     style="cursor:pointer;">
+
+        <div class="book-thumbnail">
+            <div class="image-skeleton"></div>
+            <div class="image-empty"></div>
+            <img src="@item.Book.Thumbnail"
+                 alt="@item.Book.Title"
+                 loading="lazy"
+                 onload="handleImageLoad(this)"
+                 onerror="handleImageTimeout(this)"
+                 data-timeout-id="">
+            
+        </div>
+
+        <div class="book-info">
+            <!-- Category Badge -->
+            @{
+                string category = "GENERAL";
+                if (!string.IsNullOrEmpty(item.Book.Category))
+                {
+                    category = item.Book.Category.ToUpper();
+                }
+                else if (!string.IsNullOrEmpty(item.Book.Title))
+                {
+                    var title = item.Book.Title.ToLower();
+                    if (title.Contains("harry potter") || title.Contains("hobbit") || title.Contains("lord of the rings") || title.Contains("fantasy"))
+                        category = "FANTASY";
+                    else if (title.Contains("1984") || title.Contains("gatsby") || title.Contains("mockingbird") || title.Contains("classic"))
+                        category = "CLASSIC";
+                    else if (title.Contains("pride") || title.Contains("catcher") || title.Contains("fiction"))
+                        category = "FICTION";
+                    else if (title.Contains("clean code") || title.Contains("programming") || title.Contains("computer"))
+                        category = "EDUCATION";
+                    else if (title.Contains("dune") || title.Contains("science fiction") || title.Contains("sci-fi"))
+                        category = "SCI-FI";
+                }
+            }
+            <div class="book-category">@category</div>
+
+            <h3 class="book-title">@item.Book.Title</h3>
+            <p class="book-author">@item.Book.Author @if(item.Book.PublishedYear.HasValue){<text> • @item.Book.PublishedYear</text>}</p>
+            <p class="book-description">@(item.Book.Description ?? $"Ditambahkan ke reading list pada {item.AddedAt:dd MMM yyyy}. {(item.Book.PageCount.HasValue ? $"{item.Book.PageCount} halaman." : "")}")</p>
+            
+            <!-- Reading List Action Buttons -->
+            <div class="reading-list-actions" onclick="event.stopPropagation();">
+                <a asp-controller="Page" asp-action="Read" asp-route-id="@item.BookId" class="btn-read-now" title="Baca Sekarang">
+                    <i class="fas fa-book-open"></i>
+                </a>
+                @if (item.IsRead)
+                {
+                    <button class="btn-read-status completed" onclick="toggleRead(@item.Id, event)" title="Sudah Dibaca">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-read-status unread" onclick="toggleRead(@item.Id, event)" title="Tandai Sudah Dibaca">
+                        <i class="far fa-circle"></i>
+                    </button>
+                }
+                
+                <button class="btn-favorite @(item.IsFavorite ? "active" : "")" onclick="toggleFavorite(@item.Id, event)" title="@(item.IsFavorite ? "Hapus dari Favorit" : "Tambah ke Favorit")">
+                    <i class="fas fa-heart"></i>
+                </button>
+                
+                <button class="btn-remove" onclick="removeFromReadingList(@item.Id, event)" title="Hapus dari Daftar Bacaan">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+</div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="@(Model.Any() ? "display: none;" : "display: block;")">
+        <div class="empty-state-icon">📚</div>
+        <h2 class="empty-state-title">Daftar bacaan kosong</h2>
+        <p class="empty-state-text">Mulai tambahkan buku favorit Anda dari halaman pencarian</p>
+        <button class="btn-add-book" onclick="window.location.href='/Search'">
+            <i class="fas fa-plus"></i> Cari Buku Online
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/reading-list.js"></script>
+}

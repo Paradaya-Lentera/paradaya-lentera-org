@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BookFinder</title>
+    <meta name="description"
+        content="BookFinder - Temukan dan kelola koleksi buku favorit Anda. Optimized for Offline Usage.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/bookfinder.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    <header>
+        @* Front Navbar Component *@
+        <partial name="~/Views/Shared/Components/Front/_FrontNavbar.cshtml" />
+    </header>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    @* Front Footer Component *@
+    <partial name="~/Views/Shared/Components/Front/_FrontFooter.cshtml" />
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @* Hidden form to provide anti-forgery token to JavaScript *@
+    <form id="__AjaxAntiForgeryForm" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
+    
+    <script>
+        // Get anti-forgery token from hidden form
+        try {
+            var tokenElement = document.querySelector('#__AjaxAntiForgeryForm input[name="__RequestVerificationToken"]');
+            window.antiForgeryToken = tokenElement ? tokenElement.value : '';
+        } catch (e) {
+            console.warn('Could not retrieve anti-forgery token:', e);
+            window.antiForgeryToken = '';
+        }
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

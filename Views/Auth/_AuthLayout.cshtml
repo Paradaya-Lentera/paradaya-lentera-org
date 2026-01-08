@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - LENTERA</title>
+    <link rel="stylesheet" href="~/css/auth.css" />
+    <link rel="stylesheet" href="~/css/auth-components.css" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="auth-card">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-box">
+                    <img src="~/images/lentera-logo.png" alt="Lentera Logo" class="logo-image">
+                    <p class="logo-subtitle">LENTERA Literasi Digital</p>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section">
+                @RenderBody()
+            </div>
+        </div>
+
+        <!-- Footer -->
+        @RenderSection("Footer", required: false)
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/auth.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
