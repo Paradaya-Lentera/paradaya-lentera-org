@@ -12,9 +12,9 @@ function removeFromReadingList(readinglistId, event) {
     $.ajax({
       url: "/Page/RemoveFromReadingList",
       type: "POST",
-      data: { 
+      data: {
         readingListId: readinglistId,
-        __RequestVerificationToken: window.antiForgeryToken || ''
+        __RequestVerificationToken: window.antiForgeryToken || "",
       },
       success: function (response) {
         if (response.success) {
@@ -66,9 +66,9 @@ function toggleFavorite(readinglistId, event) {
   $.ajax({
     url: "/Page/ToggleFavorite",
     type: "POST",
-    data: { 
+    data: {
       readingListId: readinglistId,
-      __RequestVerificationToken: window.antiForgeryToken || ''
+      __RequestVerificationToken: window.antiForgeryToken || "",
     },
     success: function (response) {
       if (response.success) {
@@ -126,9 +126,9 @@ function toggleRead(readinglistId, event) {
   $.ajax({
     url: "/Page/ToggleRead",
     type: "POST",
-    data: { 
+    data: {
       readingListId: readinglistId,
-      __RequestVerificationToken: window.antiForgeryToken || ''
+      __RequestVerificationToken: window.antiForgeryToken || "",
     },
     success: function (response) {
       if (response.success) {
@@ -288,4 +288,83 @@ document.addEventListener("DOMContentLoaded", function () {
       handleImageTimeout(img);
     }
   });
+});
+
+// --- Offline Support Logic ---
+
+async function toggleOffline(bookId, event) {
+  if (event) event.stopPropagation();
+
+  const cacheName = "lentera-offline-v1";
+  const urlsToCache = [`/Page/Detail?id=${bookId}`, `/Page/Read?id=${bookId}`];
+
+  // Also try to cache the image
+  const card = document.querySelector(
+    `.book-card[onclick*="viewBookDetail(${bookId})"]`
+  );
+  if (card) {
+    const img = card.querySelector("img");
+    if (img && img.src) {
+      urlsToCache.push(img.src);
+    }
+  }
+
+  try {
+    const cache = await caches.open(cacheName);
+    const btn = document.getElementById(`offline-btn-${bookId}`);
+
+    // Check if already cached
+    const isCached = await checkIsCached(bookId);
+
+    if (isCached) {
+      // Remove from cache
+      for (const url of urlsToCache) {
+        await cache.delete(url);
+      }
+      btn.classList.remove("cached");
+      btn.title = "Simpan untuk Offline";
+      if (card) card.classList.remove("is-offline");
+      showAlert("Buku dihapus dari penyimpanan offline", "info");
+    } else {
+      // Add to cache
+      showAlert("Mengunduh untuk akses offline...", "info");
+      await cache.addAll(urlsToCache);
+      btn.classList.add("cached");
+      btn.title = "Tersimpan Offline";
+      if (card) card.classList.add("is-offline");
+      showAlert("Buku siap dibaca offline!", "success");
+    }
+  } catch (error) {
+    console.error("Offline cache error:", error);
+    showAlert("Gagal memproses penyimpanan offline", "danger");
+  }
+}
+
+async function checkIsCached(bookId) {
+  const cacheName = "lentera-offline-v1";
+  if (!("caches" in window)) return false;
+  const cache = await caches.open(cacheName);
+  const response = await cache.match(`/Page/Detail?id=${bookId}`);
+  return !!response;
+}
+
+// Initial check for cached books
+document.addEventListener("DOMContentLoaded", async function () {
+  if ("caches" in window) {
+    const bookCards = document.querySelectorAll(".book-card");
+    for (const card of bookCards) {
+      // Extract bookId from onclick attribute: viewBookDetail(123)
+      const onclick = card.getAttribute("onclick");
+      const match = onclick?.match(/viewBookDetail\((\d+)\)/);
+      if (match) {
+        const bookId = match[1];
+        const isCached = await checkIsCached(bookId);
+        if (isCached) {
+          const btn = document.getElementById(`offline-btn-${bookId}`);
+          if (btn) btn.classList.add("cached");
+          card.classList.add("is-offline");
+        }
+      }
+    }
+  }
 });
