@@ -20,6 +20,7 @@ async function performSearch() {
   console.log("performSearch dipanggil");
   const searchTerm = document.getElementById("searchInput").value.trim();
   console.log("Kata pencarian:", searchTerm);
+  
   if (searchTerm === "") return;
 
   if (!window.lazySearch) {
@@ -27,9 +28,10 @@ async function performSearch() {
     return;
   }
 
+  console.log("✅ Calling lazySearch.performSearch...");
   await window.lazySearch.performSearch(searchTerm);
+  console.log("✅ lazySearch.performSearch completed");
 }
-
 function switchBookSource(source) {
   currentBookSource = source;
 
