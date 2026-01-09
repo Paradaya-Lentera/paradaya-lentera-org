@@ -19,6 +19,7 @@ const STATIC_ASSETS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log("Pre-caching static assets");
       return cache.addAll(STATIC_ASSETS);
     })
   );
@@ -41,43 +42,61 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
+  // Skip non-GET requests
   if (event.request.method !== "GET") return;
 
-  if (
-    STATIC_ASSETS.includes(url.pathname) ||
-    url.origin !== self.location.origin
-  ) {
+  // Strategy 1: Cache First for Static Assets & CDNs
+  const isStaticAsset = STATIC_ASSETS.some(
+    (asset) => url.pathname === asset || event.request.url === asset
+  );
+
+  if (isStaticAsset || url.origin !== self.location.origin) {
     event.respondWith(
-      caches.match(event.request).then((response) => {
-        return (
-          response ||
-          fetch(event.request).then((fetchRes) => {
-            return caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, fetchRes.clone());
-              return fetchRes;
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse;
+
+        return fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
             });
-          })
-        );
+          }
+          return networkResponse;
+        });
       })
     );
     return;
   }
 
+  // Strategy 2: Network First for Pages (HTML)
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        const resClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, resClone);
-        });
-        return response;
+      .then((networkResponse) => {
+        // Only cache successful basic responses (200 OK)
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          networkResponse.type === "basic"
+        ) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return networkResponse;
       })
       .catch(() => {
-        return caches.match(event.request).then((response) => {
-          if (response) return response;
+        // If network fails, try cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
 
+          // Fallback for navigation requests
           if (event.request.mode === "navigate") {
-            return caches.match("/Page/ReadingList");
+            // Try ReadingList first, then Home
+            return caches
+              .match("/Page/ReadingList")
+              .then((res) => res || caches.match("/"));
           }
         });
       })
