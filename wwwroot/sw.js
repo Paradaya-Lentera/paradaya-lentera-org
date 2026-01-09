@@ -10,8 +10,8 @@ const STATIC_ASSETS = [
   "/js/reading-list.js",
   "/js/navbar.js",
   "/js/image-utils.js",
-  "/lib/jquery/dist/jquery.min.js",
-  "/lib/bootstrap/dist/js/bootstrap.bundle.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
 ];
