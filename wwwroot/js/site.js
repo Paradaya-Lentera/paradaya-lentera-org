@@ -23,12 +23,14 @@
   window.addEventListener("scroll", () => {
     const currentScroll = window.scrollY;
 
-    if (currentScroll > lastScrollY && currentScroll > 100) {
-      navbar.classList.add("navbar-hidden");
-      navbar.classList.remove("navbar-visible");
-    } else {
-      navbar.classList.remove("navbar-hidden");
-      navbar.classList.add("navbar-visible");
+    if (navbar) {
+      if (currentScroll > lastScrollY && currentScroll > 100) {
+        navbar.classList.add("navbar-hidden");
+        navbar.classList.remove("navbar-visible");
+      } else {
+        navbar.classList.remove("navbar-hidden");
+        navbar.classList.add("navbar-visible");
+      }
     }
 
     lastScrollY = currentScroll;
@@ -56,10 +58,15 @@ document.addEventListener("DOMContentLoaded", () => {
     content.innerHTML = "";
   }
 
-  closeBtn.addEventListener("click", closeAuth);
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) closeAuth();
-  });
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeAuth);
+  }
+
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeAuth();
+    });
+  }
 
   window.openLogin = () => openAuth("/Auth/Login");
   window.openRegister = () => openAuth("/Auth/Register");
