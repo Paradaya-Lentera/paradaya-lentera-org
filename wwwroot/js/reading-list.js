@@ -292,6 +292,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // --- Offline Support Logic ---
 
+async function ensureReadingListIsCached() {
+  if ("caches" in window) {
+    try {
+      const cache = await caches.open("lentera-offline-v1");
+      // Cache this page itself
+      await cache.add(window.location.pathname + window.location.search);
+      console.log("Reading List page synced for offline use.");
+    } catch (e) {
+      console.warn("Offline sync failed:", e);
+    }
+  }
+}
+
 async function toggleOffline(bookId, event) {
   if (event) event.stopPropagation();
 
@@ -350,6 +363,9 @@ async function checkIsCached(bookId) {
 
 // Initial check for cached books
 document.addEventListener("DOMContentLoaded", async function () {
+  // Sync the current page for offline use
+  ensureReadingListIsCached();
+
   if ("caches" in window) {
     const bookCards = document.querySelectorAll(".book-card");
     for (const card of bookCards) {
