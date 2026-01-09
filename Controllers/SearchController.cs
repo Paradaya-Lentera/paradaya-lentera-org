@@ -288,5 +288,106 @@ namespace paradaya_lentera.Controllers
             var topSavedBooks = await cachedSearchService.GetTopSavedBooksAsync(count);
             return Json(new { top_saved_books = topSavedBooks });
         }
+        [HttpGet]
+        public async Task<IActionResult> GetInitialBooks()
+        {
+            try
+            {
+                // kategori buku yang populer
+                var popularQueries = new List<string>
+        {
+            "bestseller",
+            "fiction",
+            "fantasy",
+            "science fiction",
+            "mystery",
+            "romance",
+            "thriller",
+            "classics",
+            "programming",
+            "business"
+        };
+
+                var allBooks = new List<dynamic>();
+                var random = new Random();
+
+                // Ambil random 3-4 kategori untuk diversity
+                var selectedQueries = popularQueries
+                    .OrderBy(x => random.Next())
+                    .Take(4)
+                    .ToList();
+
+                foreach (var query in selectedQueries)
+                {
+                    try
+                    {
+                        var results = await cachedSearchService.SearchBooksAsync(query);
+                        if (results?.Docs != null && results.Docs.Any())
+                        {
+                            // Ambil 25-30 buku per kategori
+                            var booksFromCategory = results.Docs
+     .Take(30)
+     .Select(book => new
+     {
+         title = book.Title,
+         author = book.AuthorName?.FirstOrDefault() ?? "Unknown Author",
+         year = book.FirstPublishYear ?? 0,
+         isbn = book.Isbn?.FirstOrDefault() ?? "",
+         thumbnail = book.CoverI.HasValue
+             ? $"https://covers.openlibrary.org/b/id/{book.CoverI}-L.jpg"
+             : "",
+         description = book.Subtitle ?? $"Published in {book.FirstPublishYear}",
+         pages = 0,
+         category = query
+     });
+
+                            allBooks.AddRange(booksFromCategory);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, $"Failed to fetch books for category: {query}");
+                        continue;
+                    }
+                }
+
+                // Shuffle untuk variety
+                var shuffledBooks = allBooks
+                    .OrderBy(x => random.Next())
+                    .Take(120) // Limit 120 buku
+                    .ToList();
+
+                logger.LogInformation($"Returning {shuffledBooks.Count} initial books from API");
+
+                return Json(new
+                {
+                    featured_books = shuffledBooks,
+                    source = "api",
+                    categories = selectedQueries
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error fetching initial books from API, falling back to JSON");
+
+                // FALLBACK ke JSON file
+                try
+                {
+                    var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "featured-books.json");
+                    var jsonContent = await System.IO.File.ReadAllTextAsync(jsonPath);
+                    var featuredData = System.Text.Json.JsonSerializer.Deserialize<object>(jsonContent);
+                    return Json(featuredData);
+                }
+                catch (Exception jsonEx)
+                {
+                    logger.LogError(jsonEx, "Failed to load fallback JSON");
+                    return Json(new
+                    {
+                        error = "Failed to load books",
+                        featured_books = new List<object>()
+                    });
+                }
+            }
+        }
     }
 }
