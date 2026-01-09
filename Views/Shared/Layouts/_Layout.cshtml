@@ -28,8 +28,16 @@
     @* Front Footer Component *@
     <partial name="~/Views/Shared/Components/Front/_FrontFooter.cshtml" />
 
-    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" 
+            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+            asp-fallback-test="window.jQuery"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js" 
+            asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
+            asp-fallback-test="window.bootstrap"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
     <script src="~/js/fontawesome-fallback.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
