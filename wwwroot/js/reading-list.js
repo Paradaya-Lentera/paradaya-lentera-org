@@ -1,3 +1,8 @@
+console.log(
+  "ReadingList JS loaded. jQuery available:",
+  typeof $ !== "undefined"
+);
+
 function viewBookDetail(bookId) {
   window.location.href = `/Page/Detail?id=${bookId}`;
 }

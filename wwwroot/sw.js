@@ -52,19 +52,21 @@ self.addEventListener("fetch", (event) => {
 
   if (isStaticAsset || url.origin !== self.location.origin) {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
+      caches
+        .match(event.request, { ignoreSearch: true })
+        .then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
 
-        return fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return networkResponse;
-        });
-      })
+          return fetch(event.request).then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              const responseClone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseClone);
+              });
+            }
+            return networkResponse;
+          });
+        })
     );
     return;
   }
@@ -88,17 +90,19 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(() => {
         // If network fails, try cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
+        return caches
+          .match(event.request, { ignoreSearch: true })
+          .then((cachedResponse) => {
+            if (cachedResponse) return cachedResponse;
 
-          // Fallback for navigation requests
-          if (event.request.mode === "navigate") {
-            // Try ReadingList first, then Home
-            return caches
-              .match("/Page/ReadingList")
-              .then((res) => res || caches.match("/"));
-          }
-        });
+            // Fallback for navigation requests
+            if (event.request.mode === "navigate") {
+              // Try ReadingList first, then Home
+              return caches
+                .match("/Page/ReadingList")
+                .then((res) => res || caches.match("/"));
+            }
+          });
       })
   );
 });
