@@ -12,13 +12,19 @@ namespace paradaya_lentera.Controllers
         IReadingListService readingListService,
         ILogger<SearchController> logger) : Controller
     {
+        #region Constants
         private const int FirstPageItemCount = 50;
         private const int SubsequentPageItemCount = 6;
         private const int MinPaginationLimit = 1;
         private const int MaxPaginationLimit = 100;
         private const int MaxTopSavedBooksCount = 100;
         private const int DefaultPopularBooksCount = 8;
+        private const int InitialBooksLimit = 120;
+        private const int BooksPerCategory = 30;
+        private const int CategoryCount = 4;
+        #endregion
 
+        #region View Actions
         public IActionResult Index()
         {
             return View();
@@ -35,7 +41,9 @@ namespace paradaya_lentera.Controllers
             ViewBag.Query = q;
             return View("Index", results);
         }
+        #endregion
 
+        #region Search API
         [HttpGet]
         public async Task<IActionResult> SearchApi(string q, int page = 1, int limit = 12)
         {
@@ -46,46 +54,51 @@ namespace paradaya_lentera.Controllers
             limit = Math.Clamp(limit, MinPaginationLimit, MaxPaginationLimit);
 
             var results = await cachedSearchService.SearchBooksAsync(q);
-            if (results?.Docs != null)
+            
+            if (results?.Docs == null)
+                return Json(results);
+
+            var (totalItemsToSkip, adjustedLimit) = CalculatePagination(page, limit);
+            var paginatedDocs = results.Docs.Skip(totalItemsToSkip).Take(adjustedLimit).ToList();
+            var totalPages = CalculateTotalPages(results.NumFound);
+
+            return Json(new
             {
-                int totalItemsToSkip;
-                if (page == 1)
-                {
-                    totalItemsToSkip = 0;
-                    limit = Math.Min(limit, FirstPageItemCount);
-                }
-                else
-                {
-                    totalItemsToSkip = FirstPageItemCount + (page - 2) * SubsequentPageItemCount;
-                    limit = Math.Min(limit, SubsequentPageItemCount);
-                }
-
-                var paginatedDocs = results.Docs.Skip(totalItemsToSkip).Take(limit).ToList();
-
-                var totalItemsShown = totalItemsToSkip + paginatedDocs.Count;
-                var hasMore = totalItemsShown < results.NumFound;
-                var totalPages = 1;
-                var remainingAfterFirst = Math.Max(0, results.NumFound - FirstPageItemCount);
-                if (remainingAfterFirst > 0)
-                {
-                    totalPages += (int)Math.Ceiling((double)remainingAfterFirst / SubsequentPageItemCount);
-                }
-
-                return Json(new
-                {
-                    docs = paginatedDocs,
-                    numFound = results.NumFound,
-                    start = totalItemsToSkip,
-                    page,
-                    limit,
-                    totalPages,
-                    hasMore
-                });
-            }
-
-            return Json(results);
+                docs = paginatedDocs,
+                numFound = results.NumFound,
+                start = totalItemsToSkip,
+                page,
+                limit = adjustedLimit,
+                totalPages,
+                hasMore = (totalItemsToSkip + paginatedDocs.Count) < results.NumFound
+            });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetInitialBooks()
+        {
+            try
+            {
+                var books = await FetchBooksFromMultipleCategories();
+                
+                logger.LogInformation($"Returning {books.Count} initial books from API");
+                
+                return Json(new
+                {
+                    featured_books = books,
+                    source = "api",
+                    categories = GetSelectedCategories()
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error fetching initial books from API, falling back to JSON");
+                return await GetFallbackFeaturedBooks();
+            }
+        }
+        #endregion
+
+        #region Book Collections API
         [HttpGet]
         public async Task<IActionResult> GetPopularBooks()
         {
@@ -94,11 +107,19 @@ namespace paradaya_lentera.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetTopSavedBooks(int count = 10)
+        {
+            count = Math.Clamp(count, MinPaginationLimit, MaxTopSavedBooksCount);
+            var topSavedBooks = await cachedSearchService.GetTopSavedBooksAsync(count);
+            return Json(new { top_saved_books = topSavedBooks });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetFeaturedBooks()
         {
             try
             {
-                var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "featured-books.json");
+                var jsonPath = GetFeaturedBooksPath();
                 var jsonContent = await System.IO.File.ReadAllTextAsync(jsonPath);
                 var featuredData = System.Text.Json.JsonSerializer.Deserialize<object>(jsonContent);
                 return Json(featuredData);
@@ -114,7 +135,9 @@ namespace paradaya_lentera.Controllers
                 return Json(new { error = "Failed to load featured books" });
             }
         }
+        #endregion
 
+        #region Reading List Management
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -126,7 +149,6 @@ namespace paradaya_lentera.Controllers
             int pages,
             string isbn)
         {
-            // Validasi input
             if (string.IsNullOrWhiteSpace(title))
             {
                 TempData["ErrorMessage"] = "Judul buku tidak boleh kosong.";
@@ -139,66 +161,11 @@ namespace paradaya_lentera.Controllers
 
             try
             {
-                Book? book = null;
+                var book = await GetOrCreateBook(isbn, title, author, thumbnail, year, pages);
+                var (success, message, isNewBook) = await AddBookToUserReadingList(userId, book);
 
-                if (!string.IsNullOrEmpty(isbn))
-                {
-                    book = await bookService.GetByIsbnAsync(isbn);
-                }
-
-                if (book == null)
-                {
-                    book = await FindExistingBookAsync(isbn, title, author);
-                }
-
-                bool isNewBook = false;
-
-                if (book == null)
-                {
-                    book = new Book
-                    {
-                        Title = title?.Trim() ?? "Unknown Title",
-                        Author = author?.Trim() ?? "Unknown Author",
-                        Publisher = "Open Library",
-                        Category = "General",
-                        Thumbnail = thumbnail,
-                        Description = $"Imported from Open Library. ISBN: {isbn}",
-                        PublishedYear = year > 0 ? year : null,
-                        PageCount = pages > 0 ? pages : null,
-                        Isbn = isbn?.Trim(),
-                        Source = "OpenLibrary"
-                    };
-
-                    book = await bookService.AddBookAsync(book);
-                    isNewBook = true;
-                }
-                else
-                {
-                    await UpdateBookIfNeededAsync(book, title, author, thumbnail, year, pages, isbn);
-                }
-
-                var alreadyExists = await readingListService.IsInReadingListAsync(userId, book.Id);
-                if (alreadyExists)
-                {
-                    TempData["InfoMessage"] = $"'{book.Title}' sudah ada di daftar bacaan Anda.";
-                    return RedirectToAction("ReadingList", "Page");
-                }
-
-                var success = await readingListService.AddToReadingListAsync(userId, book.Id);
-
-                if (success)
-                {
-                    await cachedSearchService.InvalidateTopSavedBooksCacheAsync();
-
-                    TempData["SuccessMessage"] = isNewBook
-                        ? $"Berhasil menambahkan buku baru '{book.Title}' ke daftar bacaan!"
-                        : $"Berhasil menambahkan '{book.Title}' ke daftar bacaan!";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = $"Gagal menambahkan '{book.Title}' ke daftar bacaan.";
-                }
-
+                TempData[success ? "SuccessMessage" : (message.Contains("sudah ada") ? "InfoMessage" : "ErrorMessage")] = message;
+                
                 return RedirectToAction("ReadingList", "Page");
             }
             catch (Exception ex)
@@ -208,6 +175,109 @@ namespace paradaya_lentera.Controllers
                 return RedirectToAction("Index");
             }
         }
+        #endregion
+
+        #region Cache Management
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearSearchCache()
+        {
+            await cachedSearchService.ClearSearchCacheAsync();
+            TempData["SuccessMessage"] = "Search cache cleared successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearTopSavedBooksCache()
+        {
+            await cachedSearchService.ClearTopSavedBooksCache();
+            TempData["SuccessMessage"] = "Top saved books cache cleared successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+        #endregion
+
+        #region Private Helper Methods - Pagination
+        private (int skip, int limit) CalculatePagination(int page, int limit)
+        {
+            if (page == 1)
+            {
+                return (0, Math.Min(limit, FirstPageItemCount));
+            }
+
+            var totalItemsToSkip = FirstPageItemCount + (page - 2) * SubsequentPageItemCount;
+            var adjustedLimit = Math.Min(limit, SubsequentPageItemCount);
+            
+            return (totalItemsToSkip, adjustedLimit);
+        }
+
+        private int CalculateTotalPages(int totalItems)
+        {
+            var totalPages = 1;
+            var remainingAfterFirst = Math.Max(0, totalItems - FirstPageItemCount);
+            
+            if (remainingAfterFirst > 0)
+            {
+                totalPages += (int)Math.Ceiling((double)remainingAfterFirst / SubsequentPageItemCount);
+            }
+            
+            return totalPages;
+        }
+        #endregion
+
+        #region Private Helper Methods - Book Management
+        private async Task<Book> GetOrCreateBook(
+            string isbn, 
+            string title, 
+            string author, 
+            string thumbnail, 
+            int year, 
+            int pages)
+        {
+            Book? book = null;
+
+            if (!string.IsNullOrEmpty(isbn))
+            {
+                book = await bookService.GetByIsbnAsync(isbn);
+            }
+
+            book ??= await FindExistingBookAsync(isbn, title, author);
+
+            if (book == null)
+            {
+                book = CreateNewBook(isbn, title, author, thumbnail, year, pages);
+                book = await bookService.AddBookAsync(book);
+            }
+            else
+            {
+                await UpdateBookIfNeededAsync(book, title, author, thumbnail, year, pages, isbn);
+            }
+
+            return book;
+        }
+
+        private Book CreateNewBook(
+            string isbn, 
+            string title, 
+            string author, 
+            string thumbnail, 
+            int year, 
+            int pages)
+        {
+            return new Book
+            {
+                Title = title?.Trim() ?? "Unknown Title",
+                Author = author?.Trim() ?? "Unknown Author",
+                Publisher = "Open Library",
+                Category = "General",
+                Thumbnail = thumbnail,
+                Description = $"Imported from Open Library. ISBN: {isbn}",
+                PublishedYear = year > 0 ? year : null,
+                PageCount = pages > 0 ? pages : null,
+                Isbn = isbn?.Trim(),
+                Source = "OpenLibrary"
+            };
+        }
 
         private async Task<Book?> FindExistingBookAsync(string? isbn, string title, string author)
         {
@@ -215,21 +285,28 @@ namespace paradaya_lentera.Controllers
 
             if (!string.IsNullOrEmpty(isbn))
             {
+                var normalizedIsbn = NormalizeIsbn(isbn);
                 var bookByIsbn = books.FirstOrDefault(b =>
                     !string.IsNullOrEmpty(b.Isbn) &&
-                    b.Isbn.Replace("-", "").Replace(" ", "") == isbn.Replace("-", "").Replace(" ", ""));
+                    NormalizeIsbn(b.Isbn) == normalizedIsbn);
 
-                if (bookByIsbn != null) return bookByIsbn;
+                if (bookByIsbn != null) 
+                    return bookByIsbn;
             }
 
-            var bookByTitleAuthor = books.FirstOrDefault(b =>
+            return books.FirstOrDefault(b =>
                 string.Equals(b.Title.Trim(), title.Trim(), StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(b.Author?.Trim(), author?.Trim(), StringComparison.OrdinalIgnoreCase));
-
-            return bookByTitleAuthor;
         }
 
-        private async Task UpdateBookIfNeededAsync(Book existingBook, string title, string author, string thumbnail, int year, int pages, string isbn)
+        private async Task UpdateBookIfNeededAsync(
+            Book existingBook, 
+            string title, 
+            string author, 
+            string thumbnail, 
+            int year, 
+            int pages, 
+            string isbn)
         {
             bool needsUpdate = false;
 
@@ -263,131 +340,141 @@ namespace paradaya_lentera.Controllers
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearSearchCache()
+        private async Task<(bool success, string message, bool isNewBook)> AddBookToUserReadingList(int userId, Book book)
         {
-            await cachedSearchService.ClearSearchCacheAsync();
-            TempData["SuccessMessage"] = "Search cache cleared successfully.";
-            return RedirectToAction(nameof(Index));
+            var alreadyExists = await readingListService.IsInReadingListAsync(userId, book.Id);
+            
+            if (alreadyExists)
+            {
+                return (false, $"'{book.Title}' sudah ada di daftar bacaan Anda.", false);
+            }
+
+            var isNewBook = string.Equals(book.Source, "OpenLibrary", StringComparison.OrdinalIgnoreCase);
+            var success = await readingListService.AddToReadingListAsync(userId, book.Id);
+
+            if (success)
+            {
+                await cachedSearchService.InvalidateTopSavedBooksCacheAsync();
+                var message = isNewBook
+                    ? $"Berhasil menambahkan buku baru '{book.Title}' ke daftar bacaan!"
+                    : $"Berhasil menambahkan '{book.Title}' ke daftar bacaan!";
+                return (true, message, isNewBook);
+            }
+
+            return (false, $"Gagal menambahkan '{book.Title}' ke daftar bacaan.", isNewBook);
+        }
+        #endregion
+
+        #region Private Helper Methods - Initial Books
+        private async Task<List<dynamic>> FetchBooksFromMultipleCategories()
+        {
+            var allBooks = new List<dynamic>();
+            var random = new Random();
+            var selectedQueries = GetPopularQueries()
+                .OrderBy(x => random.Next())
+                .Take(CategoryCount)
+                .ToList();
+
+            foreach (var query in selectedQueries)
+            {
+                try
+                {
+                    var booksFromCategory = await FetchBooksForCategory(query);
+                    allBooks.AddRange(booksFromCategory);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, $"Failed to fetch books for category: {query}");
+                }
+            }
+
+            return allBooks
+                .OrderBy(x => random.Next())
+                .Take(InitialBooksLimit)
+                .ToList();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearTopSavedBooksCache()
+        private async Task<IEnumerable<dynamic>> FetchBooksForCategory(string category)
         {
-            await cachedSearchService.ClearTopSavedBooksCache();
-            TempData["SuccessMessage"] = "Top saved books cache cleared successfully.";
-            return RedirectToAction(nameof(Index));
+            var results = await cachedSearchService.SearchBooksAsync(category);
+            
+            if (results?.Docs == null || !results.Docs.Any())
+                return Enumerable.Empty<dynamic>();
+
+            return results.Docs
+                .Take(BooksPerCategory)
+                .Select(book => new
+                {
+                    title = book.Title,
+                    author = book.AuthorName?.FirstOrDefault() ?? "Unknown Author",
+                    year = book.FirstPublishYear ?? 0,
+                    isbn = book.Isbn?.FirstOrDefault() ?? "",
+                    thumbnail = book.CoverI.HasValue
+                        ? $"https://covers.openlibrary.org/b/id/{book.CoverI}-L.jpg"
+                        : "",
+                    description = book.Subtitle ?? $"Published in {book.FirstPublishYear}",
+                    pages = 0,
+                    category
+                });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetTopSavedBooks(int count = 10)
-        {
-            count = Math.Clamp(count, MinPaginationLimit, MaxTopSavedBooksCount);
-            var topSavedBooks = await cachedSearchService.GetTopSavedBooksAsync(count);
-            return Json(new { top_saved_books = topSavedBooks });
-        }
-        [HttpGet]
-        public async Task<IActionResult> GetInitialBooks()
+        private async Task<IActionResult> GetFallbackFeaturedBooks()
         {
             try
             {
-                // kategori buku yang populer
-                var popularQueries = new List<string>
-        {
-            "bestseller",
-            "fiction",
-            "fantasy",
-            "science fiction",
-            "mystery",
-            "romance",
-            "thriller",
-            "classics",
-            "programming",
-            "business"
-        };
-
-                var allBooks = new List<dynamic>();
-                var random = new Random();
-
-                // Ambil random 3-4 kategori untuk diversity
-                var selectedQueries = popularQueries
-                    .OrderBy(x => random.Next())
-                    .Take(4)
-                    .ToList();
-
-                foreach (var query in selectedQueries)
-                {
-                    try
-                    {
-                        var results = await cachedSearchService.SearchBooksAsync(query);
-                        if (results?.Docs != null && results.Docs.Any())
-                        {
-                            // Ambil 25-30 buku per kategori
-                            var booksFromCategory = results.Docs
-     .Take(30)
-     .Select(book => new
-     {
-         title = book.Title,
-         author = book.AuthorName?.FirstOrDefault() ?? "Unknown Author",
-         year = book.FirstPublishYear ?? 0,
-         isbn = book.Isbn?.FirstOrDefault() ?? "",
-         thumbnail = book.CoverI.HasValue
-             ? $"https://covers.openlibrary.org/b/id/{book.CoverI}-L.jpg"
-             : "",
-         description = book.Subtitle ?? $"Published in {book.FirstPublishYear}",
-         pages = 0,
-         category = query
-     });
-
-                            allBooks.AddRange(booksFromCategory);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogWarning(ex, $"Failed to fetch books for category: {query}");
-                        continue;
-                    }
-                }
-
-                // Shuffle untuk variety
-                var shuffledBooks = allBooks
-                    .OrderBy(x => random.Next())
-                    .Take(120) // Limit 120 buku
-                    .ToList();
-
-                logger.LogInformation($"Returning {shuffledBooks.Count} initial books from API");
-
+                var jsonPath = GetFeaturedBooksPath();
+                var jsonContent = await System.IO.File.ReadAllTextAsync(jsonPath);
+                var featuredData = System.Text.Json.JsonSerializer.Deserialize<object>(jsonContent);
+                return Json(featuredData);
+            }
+            catch (Exception jsonEx)
+            {
+                logger.LogError(jsonEx, "Failed to load fallback JSON");
                 return Json(new
                 {
-                    featured_books = shuffledBooks,
-                    source = "api",
-                    categories = selectedQueries
+                    error = "Failed to load books",
+                    featured_books = new List<object>()
                 });
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error fetching initial books from API, falling back to JSON");
-
-                // FALLBACK ke JSON file
-                try
-                {
-                    var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "featured-books.json");
-                    var jsonContent = await System.IO.File.ReadAllTextAsync(jsonPath);
-                    var featuredData = System.Text.Json.JsonSerializer.Deserialize<object>(jsonContent);
-                    return Json(featuredData);
-                }
-                catch (Exception jsonEx)
-                {
-                    logger.LogError(jsonEx, "Failed to load fallback JSON");
-                    return Json(new
-                    {
-                        error = "Failed to load books",
-                        featured_books = new List<object>()
-                    });
-                }
-            }
         }
+
+        private List<string> GetPopularQueries()
+        {
+            return new List<string>
+            {
+                "bestseller",
+                "fiction",
+                "fantasy",
+                "science fiction",
+                "mystery",
+                "romance",
+                "thriller",
+                "classics",
+                "programming",
+                "business"
+            };
+        }
+
+        private List<string> GetSelectedCategories()
+        {
+            var random = new Random();
+            return GetPopularQueries()
+                .OrderBy(x => random.Next())
+                .Take(CategoryCount)
+                .ToList();
+        }
+        #endregion
+
+        #region Private Helper Methods - Utilities
+        private string NormalizeIsbn(string isbn)
+        {
+            return isbn.Replace("-", "").Replace(" ", "");
+        }
+
+        private string GetFeaturedBooksPath()
+        {
+            return Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "featured-books.json");
+        }
+        #endregion
     }
 }
