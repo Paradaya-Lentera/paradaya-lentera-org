@@ -2,10 +2,14 @@ let currentFilter = "relevance";
 let currentBookSource = "featured";
 
 document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("resultCount").textContent = "0";
-
   const featuredBooks = new FeaturedBooks();
   featuredBooks.loadFeaturedBooks();
+
+  // Update result count setelah load
+  setTimeout(() => {
+    const count = featuredBooks.allBooks.length;
+    document.getElementById("resultCount").textContent = count;
+  }, 1000);
 
   document
     .getElementById("searchInput")
@@ -17,10 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function performSearch() {
-  console.log("performSearch dipanggil");
   const searchTerm = document.getElementById("searchInput").value.trim();
-  console.log("Kata pencarian:", searchTerm);
-  
   if (searchTerm === "") return;
 
   if (!window.lazySearch) {
@@ -28,10 +29,9 @@ async function performSearch() {
     return;
   }
 
-  console.log("✅ Calling lazySearch.performSearch...");
   await window.lazySearch.performSearch(searchTerm);
-  console.log("✅ lazySearch.performSearch completed");
 }
+
 function switchBookSource(source) {
   currentBookSource = source;
 
@@ -46,12 +46,17 @@ function switchBookSource(source) {
   } else if (source === "popular") {
     featuredBooks.loadPopularBooks();
   }
+  
+  // Update count
+  setTimeout(() => {
+    const count = featuredBooks.allBooks.length;
+    document.getElementById("resultCount").textContent = count;
+  }, 1000);
 }
 
 function navigateToDetail(url, event) {
   if (event.target.closest("button") || event.target.closest("form")) {
     return;
   }
-
   window.location.href = url;
 }
