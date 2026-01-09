@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   "/css/read.css",
   "/js/site.js",
   "/js/reading-list.js",
+  "/js/db-utils.js",
   "/js/navbar.js",
   "/js/image-utils.js",
   "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js",
