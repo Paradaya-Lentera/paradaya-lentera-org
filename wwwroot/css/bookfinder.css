@@ -55,50 +55,55 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  padding-top: 80px;
 }
-
 /* ===========================
    Navigation
    =========================== */
 
 .navbar {
-  background-color: var(--darker-bg);
-  padding: var(--spacing-md) var(--spacing-xl);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--bg-navbar);
   border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+
+  box-shadow: var(--shadow-navbar);
   backdrop-filter: blur(10px);
+
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+/* efek saat scroll */
+.navbar.scrolled {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ===========================
+   Brand
+   =========================== */
 
 .navbar-brand {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: opacity 0.3s ease;
 }
 
-.navbar-brand:hover {
-  opacity: 0.8;
+.navbar-brand img {
+  height: 40px;
 }
 
-.navbar-brand .icon {
-  width: 28px;
-  height: 28px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-}
+/* ===========================
+   Menu
+   =========================== */
 
 .navbar-menu {
   display: flex;
@@ -110,9 +115,6 @@ body {
   color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  transition: all 0.3s ease;
   position: relative;
 }
 
@@ -124,13 +126,17 @@ body {
 .nav-link.active::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: -6px;
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--primary-blue);
+  background-color: var(--primary-blue);
   border-radius: 2px;
 }
+
+/* ===========================
+   Actions
+   =========================== */
 
 .navbar-actions {
   display: flex;
@@ -141,32 +147,21 @@ body {
 .status-badge {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--accent-green);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  gap: 6px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
   font-weight: 600;
+  color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.12);
+  border-radius: 999px;
 }
 
 .status-badge::before {
   content: "";
-  width: 8px;
-  height: 8px;
-  background-color: var(--accent-green);
+  width: 7px;
+  height: 7px;
+  background: var(--accent-green);
   border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
 }
 
 .user-avatar {
@@ -178,11 +173,22 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.3s ease;
 }
 
-.user-avatar:hover {
-  transform: scale(1.1);
+/* ===========================
+   Dropdown safety
+   =========================== */
+
+.user-dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  z-index: 1001;
 }
 
 /* ===========================
@@ -1031,4 +1037,56 @@ html[data-theme="light"] .footer {
   .btn-search {
     width: 100%;
   }
+}
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1rem; /* Jarak dari buku lebih kecil */
+    margin-bottom: 2rem;
+    padding: 1rem;
+}
+
+.pagination-wrapper button {
+    padding: 0.75rem 1.5rem;
+    background-color: #4A90E2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-wrapper button:hover:not(:disabled) {
+    background-color: #357ABD;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-wrapper button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+}
+
+.pagination-wrapper #pageInfo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Opsional: Kurangi margin bawah books grid jika ada */
+.books-grid {
+    margin-bottom: 0;
+}
+
+.featured-books-section {
+    margin-bottom: 0;
 }

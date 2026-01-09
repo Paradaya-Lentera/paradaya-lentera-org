@@ -1,8 +1,11 @@
-// Fungsi Pencarian dengan Lazy Loading
+// Fungsi Pencarian dengan Lazy Loading dan Pagination
 class LazySearch {
   constructor() {
     this.currentSearchTerm = "";
     this.isLoading = false;
+    this.allSearchResults = []; // Simpan semua hasil search
+    this.currentPage = 1;
+    this.itemsPerPage = 9;
     this.initializeDOMElements();
   }
 
@@ -18,6 +21,7 @@ class LazySearch {
 
     this.currentSearchTerm = searchTerm.trim();
     this.isLoading = false;
+    this.currentPage = 1;
 
     const booksGrid = this.getBooksGrid();
     const resultCount = this.getResultCount();
@@ -33,31 +37,74 @@ class LazySearch {
     featuredBooksSection.style.display = "none";
     booksGrid.style.display = "grid";
 
+    // Sembunyikan featured pagination
+    const featuredPagination = document.getElementById("paginationWrapper");
+    if (featuredPagination) {
+      featuredPagination.style.display = "none";
+    }
+
     booksGrid.innerHTML =
       '<div class="text-center w-100 py-5"><div class="spinner-border text-primary"></div><p class="text-white mt-3">Mencari di Open Library...</p></div>';
 
     try {
-      const response = await fetch(
-        `/Search/SearchApi?q=${encodeURIComponent(searchTerm)}&page=1&limit=50`
-      );
+     const response = await fetch(
+  `/Search/SearchApi?q=${encodeURIComponent(searchTerm)}&page=1&limit=100`
+);
       const data = await response.json();
 
       if (data && data.docs && data.docs.length > 0) {
+        this.allSearchResults = data.docs;
+        console.log(`🔍 Found ${this.allSearchResults.length} books`);
+        
         booksGrid.innerHTML = "";
-        this.displayBooks(data.docs);
+        this.renderPage(1);
 
         resultCount.textContent = data.docs.length.toString();
       } else {
         booksGrid.innerHTML =
           '<p class="text-center w-100 py-5 text-gray-400">Tidak ada buku yang ditemukan untuk pencarian ini.</p>';
         resultCount.textContent = "0";
+        this.hidePagination();
       }
     } catch (error) {
       console.error("Error saat mencari buku:", error);
       booksGrid.innerHTML =
         '<p class="text-center w-100 py-5 text-danger">Error koneksi ke Open Library API.</p>';
       resultCount.textContent = "0";
+      this.hidePagination();
     }
+  }
+
+  renderPage(page) {
+    this.currentPage = page;
+    const booksGrid = this.getBooksGrid();
+    
+    if (!booksGrid) {
+      console.error("Elemen grid buku tidak ditemukan");
+      return;
+    }
+
+    // Clear grid
+    booksGrid.innerHTML = "";
+
+    // Hitung buku yang akan ditampilkan
+    const start = (page - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    const booksToShow = this.allSearchResults.slice(start, end);
+
+    console.log(`📄 Search Page ${page}: showing ${start + 1}-${Math.min(end, this.allSearchResults.length)} of ${this.allSearchResults.length}`);
+    console.log(`🔢 Start: ${start}, End: ${end}, Books to show:`, booksToShow.length);
+    console.log(`📚 First book on this page:`, booksToShow[0]?.title);
+    console.log(`📚 Last book on this page:`, booksToShow[booksToShow.length - 1]?.title);
+
+    // Render buku
+    this.displayBooks(booksToShow);
+
+    // Render pagination
+    this.renderPagination();
+
+    // Scroll ke atas
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   displayBooks(docs) {
@@ -73,6 +120,79 @@ class LazySearch {
       const bookCard = this.createBookCard(book, isAuthenticated);
       booksGrid.appendChild(bookCard);
     });
+  }
+
+  renderPagination() {
+    const totalPages = Math.ceil(this.allSearchResults.length / this.itemsPerPage);
+
+    // GUNAKAN ID BERBEDA untuk search pagination
+    let wrapper = document.getElementById("searchPaginationWrapper");
+
+    // Jika tidak ada, buat baru
+    if (!wrapper) {
+      wrapper = document.createElement("div");
+      wrapper.id = "searchPaginationWrapper";
+      wrapper.className = "pagination-wrapper";
+      wrapper.innerHTML = `
+        <button id="searchPrevPage">← Prev</button>
+        <span id="searchPageInfo"></span>
+        <button id="searchNextPage">Next →</button>
+      `;
+
+      // Tambahkan setelah books-container
+      const booksContainer = document.querySelector(".books-container");
+      if (booksContainer) {
+        booksContainer.appendChild(wrapper);
+      }
+    }
+
+    const pageInfo = document.getElementById("searchPageInfo");
+    const prevBtn = document.getElementById("searchPrevPage");
+    const nextBtn = document.getElementById("searchNextPage");
+
+    if (!pageInfo || !prevBtn || !nextBtn) {
+      console.error("❌ Elemen pagination tidak lengkap!");
+      return;
+    }
+
+    // Tampilkan pagination hanya jika lebih dari 1 halaman
+    if (totalPages > 1) {
+      wrapper.style.display = "flex";
+      pageInfo.textContent = `Page ${this.currentPage} of ${totalPages}`;
+
+      prevBtn.disabled = this.currentPage === 1;
+      nextBtn.disabled = this.currentPage === totalPages;
+
+      // Setup event listeners (hapus listener lama dulu)
+      const newPrevBtn = prevBtn.cloneNode(true);
+      const newNextBtn = nextBtn.cloneNode(true);
+      prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+      nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+
+      newPrevBtn.onclick = () => {
+        if (this.currentPage > 1) {
+          this.renderPage(this.currentPage - 1);
+        }
+      };
+
+      newNextBtn.onclick = () => {
+        if (this.currentPage < totalPages) {
+          this.renderPage(this.currentPage + 1);
+        }
+      };
+
+      console.log(`✅ Search Pagination: page ${this.currentPage}/${totalPages}`);
+    } else {
+      wrapper.style.display = "none";
+      console.log(`ℹ️ Search Pagination hidden: only ${this.allSearchResults.length} results`);
+    }
+  }
+
+  hidePagination() {
+    const wrapper = document.getElementById("searchPaginationWrapper");
+    if (wrapper) {
+      wrapper.style.display = "none";
+    }
   }
 
   createBookCard(book, isAuthenticated) {
@@ -225,6 +345,25 @@ class LazySearch {
     }
 
     window.location.href = url;
+  }
+
+  // Method untuk clear search dan kembali ke featured
+  clearSearch() {
+    this.allSearchResults = [];
+    this.currentPage = 1;
+    this.hidePagination();
+    
+    const booksGrid = this.getBooksGrid();
+    const featuredBooksSection = this.getFeaturedBooksSection();
+    
+    if (booksGrid) booksGrid.style.display = "none";
+    if (featuredBooksSection) featuredBooksSection.style.display = "block";
+    
+    // Tampilkan kembali featured pagination
+    const featuredPagination = document.getElementById("paginationWrapper");
+    if (featuredPagination) {
+      featuredPagination.style.display = "flex";
+    }
   }
 }
 

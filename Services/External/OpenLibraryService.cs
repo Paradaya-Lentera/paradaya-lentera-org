@@ -21,7 +21,7 @@ namespace paradaya_lentera.Services.External
             try
             {
                 var response = await _httpClient.GetFromJsonAsync<OpenLibrarySearchResponse>(
-                    $"/search.json?q={Uri.EscapeDataString(query)}&fields=key,title,author_name,first_publish_year,isbn,cover_i,number_of_pages_median,publisher,subject,ia,language,subtitle&limit=20");
+                    $"/search.json?q={Uri.EscapeDataString(query)}&fields=key,title,author_name,first_publish_year,isbn,cover_i,number_of_pages_median,publisher,subject,ia,language,subtitle&limit=50");
                 return response;
             }
             catch (HttpRequestException ex)

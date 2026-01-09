@@ -12,10 +12,10 @@ namespace paradaya_lentera.Controllers
         IReadingListService readingListService,
         ILogger<SearchController> logger) : Controller
     {
-        private const int FirstPageItemCount = 9;
+        private const int FirstPageItemCount = 50;
         private const int SubsequentPageItemCount = 6;
         private const int MinPaginationLimit = 1;
-        private const int MaxPaginationLimit = 50;
+        private const int MaxPaginationLimit = 100;
         private const int MaxTopSavedBooksCount = 100;
         private const int DefaultPopularBooksCount = 8;
 
@@ -39,7 +39,7 @@ namespace paradaya_lentera.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchApi(string q, int page = 1, int limit = 12)
         {
-            if (string.IsNullOrWhiteSpace(q)) 
+            if (string.IsNullOrWhiteSpace(q))
                 return BadRequest(new { error = "Query tidak boleh kosong" });
 
             page = Math.Max(MinPaginationLimit, page);
@@ -114,7 +114,7 @@ namespace paradaya_lentera.Controllers
                 return Json(new { error = "Failed to load featured books" });
             }
         }
-        
+
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
