@@ -7,7 +7,9 @@
     <meta name="description"
         content="BookFinder - Temukan dan kelola koleksi buku favorit Anda. Optimized for Offline Usage.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          onerror="console.warn('Font Awesome CDN failed'); document.body.classList.add('fontawesome-fallback');">
+    <link rel="stylesheet" href="~/css/fontawesome-fallback.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/bookfinder.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
@@ -28,6 +30,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/fontawesome-fallback.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
     @* Hidden form to provide anti-forgery token to JavaScript *@

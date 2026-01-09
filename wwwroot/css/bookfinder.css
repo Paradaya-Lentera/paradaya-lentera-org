@@ -1038,55 +1038,104 @@ html[data-theme="light"] .footer {
     width: 100%;
   }
 }
+/* ===========================
+   Modern Pagination Styling
+   =========================== */
 .pagination-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 1rem; /* Jarak dari buku lebih kecil */
-    margin-bottom: 2rem;
-    padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 4rem;
+  padding: 1rem;
+  position: relative;
+  z-index: 10;
 }
 
 .pagination-wrapper button {
-    padding: 0.75rem 1.5rem;
-    background-color: #4A90E2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1.5rem;
+  min-width: 100px;
+  height: auto;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
 }
 
 .pagination-wrapper button:hover:not(:disabled) {
-    background-color: #357ABD;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+  background-color: var(--card-hover);
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  box-shadow: var(--shadow-lg);
+}
+
+.pagination-wrapper button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .pagination-wrapper button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.6;
-    box-shadow: none;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-color: var(--border-color);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.4;
 }
 
-.pagination-wrapper #pageInfo {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-    min-width: 120px;
-    text-align: center;
+.pagination-wrapper span,
+.pagination-wrapper #pageInfo,
+.pagination-wrapper #searchPageInfo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  padding: 0.75rem 1.75rem;
+  border-radius: 99px;
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+  min-width: 150px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.5px;
+}
+
+/* Light Mode Pagination Adjustments */
+html[data-theme="light"] .pagination-wrapper button {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+html[data-theme="light"] .pagination-wrapper button:hover:not(:disabled) {
+  background-color: #f8fafc;
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+html[data-theme="light"] .pagination-wrapper span,
+html[data-theme="light"] .pagination-wrapper #pageInfo,
+html[data-theme="light"] .pagination-wrapper #searchPageInfo {
+  background-color: #ffffff;
+  color: #334155;
+  border-color: #e2e8f0;
 }
 
 /* Opsional: Kurangi margin bawah books grid jika ada */
 .books-grid {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .featured-books-section {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }

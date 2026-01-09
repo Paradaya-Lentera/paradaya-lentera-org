@@ -1,0 +1,199 @@
+/* Font Awesome Fallback Icons for Reading List */
+/* This file provides fallback icons using Unicode characters when Font Awesome CDN fails */
+
+/* Base icon styles */
+.fa, .fas, .far, .fab {
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+/* Fallback styles when Font Awesome fails to load */
+body.fontawesome-fallback .fa,
+body.fontawesome-fallback .fas,
+body.fontawesome-fallback .far,
+body.fontawesome-fallback .fab {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1em;
+    width: 1.25em;
+    text-align: center;
+}
+
+/* Fallback icons using Unicode characters */
+.fa-book-open::before,
+.fas.fa-book-open::before {
+    content: "📖";
+}
+
+.fa-check-circle::before,
+.fas.fa-check-circle::before {
+    content: "✅";
+}
+
+.fa-circle::before,
+.far.fa-circle::before {
+    content: "⭕";
+}
+
+.fa-heart::before,
+.fas.fa-heart::before {
+    content: "❤️";
+}
+
+.fa-times::before,
+.fas.fa-times::before {
+    content: "❌";
+}
+
+.fa-cloud-download-alt::before,
+.fas.fa-cloud-download-alt::before {
+    content: "☁️";
+}
+
+.fa-plus::before,
+.fas.fa-plus::before {
+    content: "➕";
+}
+
+.fa-search::before,
+.fas.fa-search::before {
+    content: "🔍";
+}
+
+.fa-star::before,
+.fas.fa-star::before {
+    content: "⭐";
+}
+
+.fa-bookmark::before,
+.fas.fa-bookmark::before {
+    content: "🔖";
+}
+
+.fa-home::before,
+.fas.fa-home::before {
+    content: "🏠";
+}
+
+.fa-user::before,
+.fas.fa-user::before {
+    content: "👤";
+}
+
+.fa-cog::before,
+.fas.fa-cog::before {
+    content: "⚙️";
+}
+
+.fa-bars::before,
+.fas.fa-bars::before {
+    content: "☰";
+}
+
+.fa-download::before,
+.fas.fa-download::before {
+    content: "⬇️";
+}
+
+/* Alternative CSS-only icons when Unicode fails */
+body.fontawesome-fallback .fa-heart::before,
+body.fontawesome-fallback .fas.fa-heart::before {
+    content: "♥";
+    color: #e74c3c;
+}
+
+body.fontawesome-fallback .fa-check-circle::before,
+body.fontawesome-fallback .fas.fa-check-circle::before {
+    content: "✓";
+    color: #27ae60;
+    font-weight: bold;
+}
+
+body.fontawesome-fallback .fa-times::before,
+body.fontawesome-fallback .fas.fa-times::before {
+    content: "×";
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+body.fontawesome-fallback .fa-circle::before,
+body.fontawesome-fallback .far.fa-circle::before {
+    content: "○";
+    color: #95a5a6;
+}
+
+body.fontawesome-fallback .fa-book-open::before,
+body.fontawesome-fallback .fas.fa-book-open::before {
+    content: "📖";
+    color: #2ecc71;
+}
+
+body.fontawesome-fallback .fa-cloud-download-alt::before,
+body.fontawesome-fallback .fas.fa-cloud-download-alt::before {
+    content: "↓";
+    color: #3498db;
+    font-weight: bold;
+}
+
+body.fontawesome-fallback .fa-plus::before,
+body.fontawesome-fallback .fas.fa-plus::before {
+    content: "+";
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+/* Ensure proper sizing for fallback icons */
+body.fontawesome-fallback .fa,
+body.fontawesome-fallback .fas,
+body.fontawesome-fallback .far,
+body.fontawesome-fallback .fab {
+    font-size: 1em;
+    width: 1.25em;
+    text-align: center;
+    display: inline-block;
+}
+
+/* Specific adjustments for reading list buttons */
+.reading-list-actions .fa,
+.reading-list-actions .fas,
+.reading-list-actions .far {
+    font-size: 0.9em;
+}
+
+/* Color adjustments for different states */
+.btn-favorite.active .fa-heart::before {
+    color: #e74c3c !important;
+}
+
+.btn-read-status.completed .fa-check-circle::before {
+    color: #27ae60 !important;
+}
+
+.btn-read-status.unread .fa-circle::before {
+    color: #95a5a6 !important;
+}
+
+.btn-remove .fa-times::before {
+    color: #e74c3c !important;
+}
+
+.btn-offline .fa-cloud-download-alt::before {
+    color: #3498db !important;
+}
+
+.btn-read-now .fa-book-open::before {
+    color: #2ecc71 !important;
+}
+
+/* Fallback icon class for JavaScript-applied icons */
+.fallback-icon {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 1em !important;
+    display: inline-block !important;
+    text-align: center !important;
+    width: 1.25em !important;
+    line-height: 1 !important;
+}

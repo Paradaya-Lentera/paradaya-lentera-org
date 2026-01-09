@@ -34,6 +34,12 @@ public class PageController : Controller
         return View();
     }
 
+    // TEST ICONS PAGE
+    public IActionResult TestIcons()
+    {
+        return View();
+    }
+
     // DETAIL
     public async Task<IActionResult> Detail(int? id, string? isbn, string? olkey)
     {

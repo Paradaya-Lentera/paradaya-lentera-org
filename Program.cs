@@ -58,7 +58,19 @@ else
 app.UseGlobalExceptionHandler();
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// Configure static files with proper caching headers
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Cache static files for 1 day in production, but allow revalidation
+        if (!app.Environment.IsDevelopment())
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=86400,must-revalidate");
+        }
+    }
+});
 
 app.UseRouting();
 
