@@ -2,6 +2,9 @@ class FeaturedBooks {
   constructor() {
     this.container = document.getElementById("featuredBooksGrid");
     this.loadingElement = document.getElementById("loading-featured");
+    this.allBooks = []; // Simpan semua buku
+    this.currentPage = 1;
+    this.itemsPerPage = 9; // 9 buku per halaman (3 baris x 3 kolom)
   }
 
   async loadFeaturedBooks() {
@@ -11,7 +14,10 @@ class FeaturedBooks {
       const response = await fetch("/data/featured-books.json");
       const data = await response.json();
 
-      this.renderBooks(data.featured_books);
+      this.allBooks = data.featured_books || [];
+      console.log(`✅ Loaded ${this.allBooks.length} featured books`);
+      
+      this.renderBooksWithPagination(1);
       this.hideLoading();
     } catch (error) {
       console.error("Error loading featured books:", error);
@@ -26,7 +32,10 @@ class FeaturedBooks {
       const response = await fetch("/Search/GetFeaturedBooks");
       const data = await response.json();
 
-      this.renderBooks(data.featured_books);
+      this.allBooks = data.featured_books || [];
+      console.log(`✅ Loaded ${this.allBooks.length} featured books from API`);
+      
+      this.renderBooksWithPagination(1);
       this.hideLoading();
     } catch (error) {
       console.error("Error loading featured books dari API:", error);
@@ -41,12 +50,32 @@ class FeaturedBooks {
       const response = await fetch("/Search/GetPopularBooks");
       const data = await response.json();
 
-      this.renderBooks(data.popular_books);
+      this.allBooks = data.popular_books || [];
+      console.log(`✅ Loaded ${this.allBooks.length} popular books`);
+      
+      this.renderBooksWithPagination(1);
       this.hideLoading();
     } catch (error) {
       console.error("Error loading buku populer:", error);
       this.showError();
     }
+  }
+
+  renderBooksWithPagination(page) {
+    this.currentPage = page;
+    
+    // Hitung buku yang akan ditampilkan
+    const start = (page - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    const booksToShow = this.allBooks.slice(start, end);
+    
+    console.log(`📄 Page ${page}: showing books ${start + 1}-${Math.min(end, this.allBooks.length)} of ${this.allBooks.length}`);
+    
+    // Render buku
+    this.renderBooks(booksToShow);
+    
+    // Render pagination
+    this.renderPagination();
   }
 
   renderBooks(books) {
@@ -143,6 +172,74 @@ class FeaturedBooks {
         handleImageTimeout(img);
       }
     });
+  }
+
+  renderPagination() {
+    const totalPages = Math.ceil(this.allBooks.length / this.itemsPerPage);
+    
+    // Cari atau buat elemen pagination
+    let wrapper = document.getElementById("paginationWrapper");
+    
+    // Jika tidak ada, buat baru
+    if (!wrapper) {
+      wrapper = document.createElement("div");
+      wrapper.id = "paginationWrapper";
+      wrapper.className = "pagination-wrapper";
+      wrapper.innerHTML = `
+        <button id="prevPage">← Prev</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage">Next →</button>
+      `;
+      
+      // Tambahkan setelah featuredBooksGrid
+      const section = document.querySelector(".featured-books-section");
+      if (section) {
+        section.appendChild(wrapper);
+      }
+    }
+    
+    const pageInfo = document.getElementById("pageInfo");
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+    
+    if (!pageInfo || !prevBtn || !nextBtn) {
+      console.error("❌ Elemen pagination tidak lengkap!");
+      return;
+    }
+    
+    // Tampilkan pagination hanya jika lebih dari 1 halaman
+    if (totalPages > 1) {
+      wrapper.style.display = "flex";
+      pageInfo.textContent = `Page ${this.currentPage} of ${totalPages}`;
+      
+      prevBtn.disabled = this.currentPage === 1;
+      nextBtn.disabled = this.currentPage === totalPages;
+      
+      // Setup event listeners (hapus listener lama dulu)
+      const newPrevBtn = prevBtn.cloneNode(true);
+      const newNextBtn = nextBtn.cloneNode(true);
+      prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+      nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+      
+      newPrevBtn.onclick = () => {
+        if (this.currentPage > 1) {
+          this.renderBooksWithPagination(this.currentPage - 1);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+      
+      newNextBtn.onclick = () => {
+        if (this.currentPage < totalPages) {
+          this.renderBooksWithPagination(this.currentPage + 1);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      };
+      
+      console.log(`✅ Pagination: page ${this.currentPage}/${totalPages} (${this.allBooks.length} books, ${this.itemsPerPage} per page)`);
+    } else {
+      wrapper.style.display = "none";
+      console.log(`ℹ️ Pagination hidden: only ${this.allBooks.length} books`);
+    }
   }
 
   showLoading() {
