@@ -1,0 +1,44 @@
+/* ===========================
+   Lentera - Mobile Grid & Layout
+   =========================== */
+
+@media (max-width: 991px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .books-grid,
+  #featuredBooksGrid,
+  #booksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .filter-buttons {
+    width: 100%;
+  }
+
+  .featured-books-section {
+    padding: 1rem;
+  }
+
+  .featured-books-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .book-source-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tab-button,
+  .tab-btn {
+    flex: 1;
+    text-align: center;
+  }
+}

@@ -1,0 +1,63 @@
+/* ===========================
+   Lentera - Light Theme Cards
+   =========================== */
+
+html[data-theme="light"] .book-title,
+html[data-theme="light"] .reading-card-title {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .book-author,
+html[data-theme="light"] .reading-card-author {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .book-description,
+html[data-theme="light"] .reading-card-description,
+html[data-theme="light"] .book-meta,
+html[data-theme="light"] .reading-card-meta {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .category-badge,
+html[data-theme="light"] .card-category,
+html[data-theme="light"] .book-category {
+  background-color: #e0e7ff;
+  color: #3730a3 !important;
+}
+
+html[data-theme="light"] .sort-label,
+html[data-theme="light"] .result-count,
+html[data-theme="light"] .showing-results,
+html[data-theme="light"] .filter-label,
+html[data-theme="light"] .footer-text {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .tab-btn,
+html[data-theme="light"] .tab-button {
+  color: #334155 !important;
+  border-color: #e5e7eb;
+  background-color: #ffffff;
+}
+
+html[data-theme="light"] .tab-btn.active,
+html[data-theme="light"] .tab-button.active {
+  background-color: #2563eb;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .btn-view-details:hover {
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+html[data-theme="light"] .btn-add-book,
+html[data-theme="light"] .btn-reading,
+html[data-theme="light"] .add-to-list {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .footer {
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-color);
+}

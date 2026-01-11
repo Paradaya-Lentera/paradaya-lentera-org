@@ -1,0 +1,152 @@
+/* ===========================
+   Lentera - Pagination Component
+   =========================== */
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 5rem;
+  padding: 0 1rem;
+}
+
+/* Base Bubble Style (Default/Light) */
+.pagination-wrapper button {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  padding: 16px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.pagination-wrapper button:hover:not(:disabled) {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+  background: #f8fafc;
+}
+
+.pagination-wrapper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  background: #f1f5f9;
+}
+
+.pagination-arrow {
+  font-size: 1.4rem;
+  font-weight: 300;
+  margin: 0;
+}
+
+.pagination-label {
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+
+/* Page Info Middle Bubble */
+.pagination-wrapper span#pageInfo,
+.pagination-wrapper span#searchPageInfo {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  padding: 16px 32px;
+  font-weight: 700;
+  color: #334155;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  min-width: 160px;
+  text-align: center;
+  font-size: 0.95rem;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Specific button layout for Next (Label top, Arrow bottom) */
+#nextPage,
+#searchNextPage {
+  flex-direction: column !important;
+}
+
+#nextPage .pagination-label,
+#searchNextPage .pagination-label {
+  margin-top: 0;
+  margin-bottom: 2px;
+}
+
+/* DARK MODE OVERRIDES - Fixed to handle cases where data-theme is removed */
+html[data-theme="dark"] .pagination-wrapper button,
+html[data-theme="dark"] .pagination-wrapper span#pageInfo,
+html[data-theme="dark"] .pagination-wrapper span#searchPageInfo,
+:root:not([data-theme="light"]) .pagination-wrapper button,
+:root:not([data-theme="light"]) .pagination-wrapper span#pageInfo,
+:root:not([data-theme="light"]) .pagination-wrapper span#searchPageInfo {
+  background: #1a202c !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme="dark"] .pagination-wrapper button:hover:not(:disabled),
+:root:not([data-theme="light"])
+  .pagination-wrapper
+  button:hover:not(:disabled) {
+  background: #2d3748 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-theme="dark"] .pagination-wrapper button:disabled,
+:root:not([data-theme="light"]) .pagination-wrapper button:disabled {
+  background: #0f172a !important;
+  color: #475569 !important;
+  border-color: transparent !important;
+}
+
+/* Ensure arrows and labels are visible in dark mode */
+html[data-theme="dark"] .pagination-arrow,
+:root:not([data-theme="light"]) .pagination-arrow {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .pagination-label,
+:root:not([data-theme="light"]) .pagination-label {
+  color: #cbd5e1 !important;
+}
+
+/* Mobile Responsive Refinement */
+@media (max-width: 600px) {
+  .pagination-wrapper {
+    gap: 0.5rem;
+  }
+
+  .pagination-wrapper button {
+    padding: 12px 20px;
+    min-width: 85px;
+  }
+
+  .pagination-wrapper span#pageInfo,
+  .pagination-wrapper span#searchPageInfo {
+    padding: 12px 24px;
+    min-width: 130px;
+    font-size: 0.85rem;
+  }
+
+  .pagination-label {
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+  }
+}

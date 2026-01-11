@@ -1,0 +1,16 @@
+/* ===========================
+   Lentera - Footer
+   =========================== */
+
+.footer {
+  background-color: var(--darker-bg);
+  border-top: 1px solid var(--border-color);
+  padding: var(--spacing-xl);
+  text-align: center;
+  margin-top: var(--spacing-2xl);
+}
+
+.footer-text {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

@@ -4,7 +4,10 @@
     Layout = "~/Views/Auth/_AuthLayout.cshtml";
 }
 
-<h2 class="form-title">Sign In</h2>
+<div class="form-header">
+    <h1 class="form-title">Selamat Datang Kembali</h1>
+    <p class="form-subtitle">Silakan masuk ke akun Lentera Anda untuk melanjutkan.</p>
+</div>
 
 <form asp-controller="Auth" asp-action="Login" method="post">
     @Html.AntiForgeryToken()

@@ -1,0 +1,47 @@
+/* ===========================
+   Lentera - Small Mobile (max-width: 480px)
+   =========================== */
+
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .navbar-collapse {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .nav-link {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+  }
+
+  .btn-login,
+  .btn-register {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .books-grid,
+  #featuredBooksGrid,
+  #booksGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .logo-image {
+    height: 44px;
+  }
+
+  .book-thumbnail {
+    width: 140px;
+    height: 210px;
+  }
+
+  .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .search-box {
+    flex-direction: column;
+  }
+}

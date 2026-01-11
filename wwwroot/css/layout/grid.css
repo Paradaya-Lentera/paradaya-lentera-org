@@ -1,0 +1,46 @@
+/* ===========================
+   Lentera - Grid Layout
+   =========================== */
+
+.books-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-xl) var(--spacing-2xl);
+}
+
+.books-grid,
+#featuredBooksGrid,
+#booksGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom: 0;
+}
+
+/* Featured Books Section */
+.featured-books-section {
+  margin: 2rem 0;
+  padding: 0;
+  background: transparent;
+  margin-bottom: 0;
+}
+
+.featured-books-title,
+.featured-title,
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.featured-books-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}

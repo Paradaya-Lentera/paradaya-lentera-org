@@ -1,0 +1,49 @@
+/* ===========================
+   Lentera - Dark Theme Pagination
+   =========================== */
+
+html[data-theme="dark"] .pagination-wrapper button,
+:root:not([data-theme="light"]) .pagination-wrapper button {
+  background-color: #1a202c !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+html[data-theme="dark"] .pagination-wrapper button:hover:not(:disabled),
+:root:not([data-theme="light"])
+  .pagination-wrapper
+  button:hover:not(:disabled) {
+  background-color: #2d3748 !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+html[data-theme="dark"] .pagination-wrapper button:disabled,
+:root:not([data-theme="light"]) .pagination-wrapper button:disabled {
+  background-color: #0f172a !important;
+  color: #475569 !important;
+  border-color: transparent !important;
+  opacity: 0.4;
+}
+
+html[data-theme="dark"] .pagination-wrapper span#pageInfo,
+html[data-theme="dark"] .pagination-wrapper span#searchPageInfo,
+:root:not([data-theme="light"]) .pagination-wrapper span#pageInfo,
+:root:not([data-theme="light"]) .pagination-wrapper span#searchPageInfo {
+  background-color: #1a202c !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Ensure arrows and labels are visible in dark mode */
+html[data-theme="dark"] .pagination-arrow,
+:root:not([data-theme="light"]) .pagination-arrow {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .pagination-label,
+:root:not([data-theme="light"]) .pagination-label {
+  color: #cbd5e1 !important;
+}
