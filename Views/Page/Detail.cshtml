@@ -5,7 +5,6 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/pages/detail.css">
-    <link rel="stylesheet" href="~/css/detail-extra.css">
 }
 
 <div class="detail-container">
@@ -37,7 +36,42 @@
 
     @if (User.Identity?.IsAuthenticated == true)
     {
-        @if (!Model.IsLocal || !Model.LocalBookId.HasValue)
+        @if (Model.IsLocal && Model.LocalBookId.HasValue)
+        {
+            @if (Model.IsInReadingList)
+            {
+                <!-- FAVORIT -->
+                <button id="favoriteBtn"
+                        class="action-btn btn-favorite w-100 mb-2"
+                        onclick="toggleFavorite(@Model.ReadingListId)">
+                    <i class="fas fa-star"></i> @(Model.IsFavorite ? "Favorit" : "Tambah Favorit")
+                </button>
+
+                <!-- SELESAI DIBACA -->
+                <button id="readBtn"
+                        class="action-btn btn-read w-100 mb-2"
+                        onclick="toggleRead(@Model.ReadingListId)">
+                    <i class="fas fa-check"></i> @(Model.IsRead ? "Selesai Dibaca" : "Belum Dibaca")
+                </button>
+
+                <!-- HAPUS DARI LIST -->
+                <button id="readingListBtn"
+                        class="action-btn btn-remove w-100"
+                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
+                    <i class="fas fa-trash"></i> Hapus dari Daftar
+                </button>
+            }
+            else
+            {
+                <!-- TAMBAH KE LIST -->
+                <button id="readingListBtn"
+                        class="action-btn btn-add"
+                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
+                    <i class="fas fa-bookmark"></i> Simpan Ke Daftar
+                </button>
+            }
+        }
+        else
         {
             <form asp-controller="Search" asp-action="AddToReadingList" method="post" class="w-100">
                 <input type="hidden" name="title" value="@Model.Title" />
@@ -111,7 +145,12 @@
                     <span class="rating-divider">•</span>
                     <span class="rating-details">Rating dari Open Library</span>
                 </div>
-                <h1 class="detail-title" id="bookTitle">@Model.Title</h1>
+                <h1 class="detail-title" id="bookTitle">
+                    @Model.Title 
+                    @if (Model.Year.HasValue) {
+                        <span class="detail-year" style="font-weight: 400; color: var(--text-muted); font-size: 0.8em; margin-left: 10px;">(@(Model.Year.Value))</span>
+                    }
+                </h1>
                 @if (!string.IsNullOrEmpty(Model.Subtitle))
                 {
                     <h2 class="detail-subtitle" style="font-size: 1.2rem; color: #666; margin-top: 0.5rem;">@Model.Subtitle</h2>
@@ -190,3 +229,141 @@
                 </div>
                 <div class="spec-item">
                     <div class="spec-label">Terbit</div>
+                    <div class="spec-value dynamic-data" id="bookYear">
+                        @if (Model.Year.HasValue)
+                        {
+                            @Model.Year.Value.ToString()
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Penerbit</div>
+                    <div class="spec-value dynamic-data" id="bookPublisher">@Model.Publisher</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">ISBN</div>
+                    <div class="spec-value dynamic-data" id="bookIsbn">@(string.IsNullOrEmpty(Model.Isbn) ? "-" : Model.Isbn)</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Language))
+                {
+                    <div class="spec-item">
+                        <div class="spec-label">Bahasa</div>
+                        <div class="spec-value dynamic-data" id="bookLanguage">@Model.Language</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleSynopsisText() {
+            var short = document.getElementById('synopsisShort');
+            var full = document.getElementById('synopsisFull');
+            var btn = document.getElementById('toggleSynopsis');
+            
+            if (short && full) {
+                if (full.style.display === 'none') {
+                    full.style.display = 'block';
+                    short.style.display = 'none';
+                    btn.textContent = 'Tampilkan Lebih Sedikit';
+                } else {
+                    full.style.display = 'none';
+                    short.style.display = 'block';
+                    btn.textContent = 'Lihat Selengkapnya';
+                }
+            }
+        }
+
+        async function toggleFavorite(id) {
+            const btn = document.getElementById('favoriteBtn');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            try {
+                const response = await fetch('/Page/ToggleFavorite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `readingListId=${id}`
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (data.isFavorite) {
+                        btn.innerHTML = '<i class="fas fa-star"></i> Favorit';
+                        // Add class for visual feedback if needed
+                    } else {
+                        btn.innerHTML = '<i class="fas fa-star"></i> Tambah Favorit';
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+            }
+        }
+
+        async function toggleRead(id) {
+            const btn = document.getElementById('readBtn');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            try {
+                const response = await fetch('/Page/ToggleRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `readingListId=${id}`
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (data.isRead) {
+                        btn.innerHTML = '<i class="fas fa-check"></i> Selesai Dibaca';
+                    } else {
+                        btn.innerHTML = '<i class="fas fa-check"></i> Belum Dibaca';
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling read status:', error);
+            }
+        }
+
+        async function toggleReadingList(bookId) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            try {
+                const response = await fetch('/Page/ToggleReadingList', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': token
+                    },
+                    body: `bookId=${bookId}`
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error toggling reading list:', error);
+            }
+        }
+
+        // Add 'loaded' class to dynamic data for better visual
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.dynamic-data').forEach(el => {
+                if (el.textContent.trim() !== '' && el.textContent.trim() !== '-') {
+                    el.classList.add('loaded');
+                }
+            });
+        });
+    </script>
+}

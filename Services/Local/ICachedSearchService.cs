@@ -4,7 +4,7 @@ namespace paradaya_lentera.Services.Local
 {
     public interface ICachedSearchService
     {
-        Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query);
+        Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query, int limit = 50);
 
         Task<List<object>> GetTopSavedBooksAsync(int count = 10);
 

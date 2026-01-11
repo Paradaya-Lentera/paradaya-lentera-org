@@ -223,10 +223,17 @@ body {
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 8px;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reading-list-actions button i {
+  transition: all 0.3s ease;
 }
 
 .reading-list-actions button:hover {
@@ -235,20 +242,97 @@ body {
   transform: scale(1.1);
 }
 
-.btn-favorite.active {
+.btn-favorite.active i {
+  animation: heartPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   color: #ef4444;
 }
 
-.btn-read-status.active {
-  color: #10b981 !important; /* Explicit green color */
+.btn-favorite:not(.active):hover i {
+  animation: heartBeat 1.5s infinite;
+  color: #ef4444;
+  opacity: 0.8;
 }
 
-.btn-read-status.active:hover {
-  background: rgba(16, 185, 129, 0.1);
+.btn-read-status.active i {
+  color: #10b981 !important;
+  animation: checkPop 0.4s ease-out;
 }
 
-.btn-remove:hover {
+.btn-read-status:hover i {
+  color: #10b981;
+  transform: scale(1.15);
+}
+
+.btn-offline.cached i {
+  color: #38bdf8;
+  animation: cloudPulse 2s infinite ease-in-out;
+}
+
+.btn-offline:hover i {
+  color: #38bdf8;
+  transform: translateY(-2px);
+}
+
+.btn-remove:hover i {
   color: #ef4444 !important;
+  transform: rotate(15deg) scale(1.2);
+}
+
+/* Animations */
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.15);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cloudPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Offline Badge Overlay */
