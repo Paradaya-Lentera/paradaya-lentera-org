@@ -1,0 +1,88 @@
+/* ===========================
+   Lentera - Navbar Desktop Styles
+   =========================== */
+
+@media (min-width: 992px) {
+  .navbar-collapse {
+    display: flex !important;
+    position: static !important;
+    background: transparent !important;
+    flex-direction: row !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin-left: 0 !important;
+  }
+
+  .navbar-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: var(--spacing-lg) !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .navbar-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: var(--spacing-lg) !important;
+    align-items: center !important;
+    margin-left: auto;
+  }
+
+  .nav-link {
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    background: transparent !important;
+    width: auto !important;
+    text-align: left !important;
+  }
+
+  .auth-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: var(--spacing-sm) !important;
+  }
+
+  .user-dropdown {
+    position: relative !important;
+  }
+
+  .user-avatar {
+    padding: 4px 12px 4px 6px !important;
+    background: transparent !important;
+    width: auto !important;
+    justify-content: flex-start !important;
+  }
+
+  .user-dropdown .dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    left: auto !important;
+    width: auto !important;
+    min-width: 180px !important;
+    margin-top: 0 !important;
+    box-shadow: var(--shadow-xl) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--dark-bg) !important;
+    z-index: 1002 !important;
+  }
+
+  .user-dropdown .dropdown-menu.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+  }
+
+  .dropdown-item {
+    padding: var(--spacing-md) !important;
+    font-size: 0.9rem !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+
+  .navbar-toggler {
+    display: none !important;
+  }
+}

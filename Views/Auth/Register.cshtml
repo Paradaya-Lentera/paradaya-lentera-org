@@ -4,7 +4,10 @@
     Layout = "~/Views/Auth/_AuthLayout.cshtml";
 }
 
-<h2 class="form-title">Create Account</h2>
+<div class="form-header">
+    <h1 class="form-title">Daftar Akun Baru</h1>
+    <p class="form-subtitle">Mulai perjalanan literasi Anda bersama Lentera hari ini.</p>
+</div>
 
 <form asp-controller="Auth" asp-action="Register" method="post">
     @Html.AntiForgeryToken()

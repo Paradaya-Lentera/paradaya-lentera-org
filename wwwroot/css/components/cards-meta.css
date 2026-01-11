@@ -1,0 +1,36 @@
+/* ===========================
+   Lentera - Card Meta & Footer
+   =========================== */
+
+.book-meta,
+.reading-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.book-year {
+  font-size: 0.813rem;
+  color: var(--text-muted);
+}
+
+/* Loading & Error States */
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+/* Load More Container */
+.load-more-container {
+  text-align: center;
+  margin: var(--spacing-xl) 0;
+}

@@ -1,10 +1,10 @@
-const CACHE_NAME = "lentera-offline-v1";
+const CACHE_NAME = "lentera-offline-v2";
 const STATIC_ASSETS = [
   "/",
   "/css/site.css",
   "/css/reading-list.css",
   "/css/reading-list-extra.css",
-  "/css/bookfinder.css",
+  "/css/lentera.css",
   "/css/read.css",
   "/js/site.js",
   "/js/reading-list.js",

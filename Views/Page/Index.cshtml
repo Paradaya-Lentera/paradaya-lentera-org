@@ -60,10 +60,9 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/image-utils.js"></script>
-    <script src="~/js/featured-books.js"></script>
-    <script src="~/js/lazy-search.js"></script>
-    <script src="~/js/index.js"></script>
+    <script src="~/js/features/featured-books.js"></script>
+    <script src="~/js/features/search.js"></script>
+    <script src="~/js/pages/index.js"></script>
     <script>
         // Set authentication status for lazy search
         window.isUserAuthenticated = @(User.Identity?.IsAuthenticated == true ? "true" : "false");

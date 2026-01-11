@@ -1,0 +1,41 @@
+/* ===========================
+   Lentera - Tablet Responsive (max-width: 768px)
+   =========================== */
+
+@media (max-width: 768px) {
+  .navbar-container {
+    padding: 0 var(--spacing-md);
+  }
+
+  .navbar-brand img {
+    height: 32px;
+  }
+
+  .brand-text {
+    font-size: 1rem;
+  }
+
+  .navbar-toggler {
+    width: 28px;
+    height: 20px;
+  }
+
+  .hamburger-bar {
+    height: 2.5px;
+  }
+
+  .navbar-toggler.active .hamburger-bar:nth-child(1) {
+    transform: translateY(8.75px) rotate(45deg);
+  }
+
+  .navbar-toggler.active .hamburger-bar:nth-child(3) {
+    transform: translateY(-8.75px) rotate(-45deg);
+  }
+
+  .books-grid,
+  #featuredBooksGrid,
+  #booksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+}

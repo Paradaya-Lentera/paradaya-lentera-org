@@ -4,9 +4,8 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/reading-list.css">
+    <link rel="stylesheet" href="~/css/pages/reading-list.css">
     <link rel="stylesheet" href="~/css/reading-list-extra.css">
-    <link rel="stylesheet" href="~/css/bookfinder.css">
 }
 
 <div class="reading-list-container">
@@ -41,78 +40,53 @@
     <div class="book-card"
      data-favorite="@item.IsFavorite.ToString().ToLower()"
      data-read="@item.IsRead.ToString().ToLower()"
-     onclick="viewBookDetail(@item.BookId)"
-     style="cursor:pointer;">
+     data-book-id="@item.BookId">
 
-        <div class="book-thumbnail">
-            <div class="image-skeleton"></div>
-            <div class="image-empty"></div>
+        <div class="book-cover-wrapper" onclick="viewBookDetail(@item.BookId)">
             <img src="@item.Book.Thumbnail"
                  alt="@item.Book.Title"
+                 class="book-cover"
                  loading="lazy"
                  onload="handleImageLoad(this)"
-                 onerror="handleImageTimeout(this)"
-                 data-timeout-id="">
-            <div class="offline-badge">OFFLINE</div>
+                 onerror="handleImageTimeout(this)">
+            @if (item.IsRead)
+            {
+                <div class="offline-badge" style="background: var(--accent-green);">SUDAH DIBACA</div>
+            }
         </div>
 
         <div class="book-info">
-            <!-- Category Badge -->
-            @{
-                string category = "GENERAL";
-                if (!string.IsNullOrEmpty(item.Book.Category))
-                {
-                    category = item.Book.Category.ToUpper();
-                }
-                else if (!string.IsNullOrEmpty(item.Book.Title))
-                {
-                    var title = item.Book.Title.ToLower();
-                    if (title.Contains("harry potter") || title.Contains("hobbit") || title.Contains("lord of the rings") || title.Contains("fantasy"))
-                        category = "FANTASY";
-                    else if (title.Contains("1984") || title.Contains("gatsby") || title.Contains("mockingbird") || title.Contains("classic"))
-                        category = "CLASSIC";
-                    else if (title.Contains("pride") || title.Contains("catcher") || title.Contains("fiction"))
-                        category = "FICTION";
-                    else if (title.Contains("clean code") || title.Contains("programming") || title.Contains("computer"))
-                        category = "EDUCATION";
-                    else if (title.Contains("dune") || title.Contains("science fiction") || title.Contains("sci-fi"))
-                        category = "SCI-FI";
-                }
-            }
-            <div class="book-category">@category</div>
+            <div class="book-category">@((item.Book.Category ?? "GENERAL").ToUpper())</div>
 
-            <h3 class="book-title">@item.Book.Title</h3>
+            <h3 class="book-title" onclick="viewBookDetail(@item.BookId)">@item.Book.Title</h3>
             <p class="book-author">@item.Book.Author @if(item.Book.PublishedYear.HasValue){<text> • @item.Book.PublishedYear</text>}</p>
-            <p class="book-description">@(item.Book.Description ?? $"Ditambahkan ke reading list pada {item.AddedAt:dd MMM yyyy}. {(item.Book.PageCount.HasValue ? $"{item.Book.PageCount} halaman." : "")}")</p>
             
-            <!-- Reading List Action Buttons -->
-            <div class="reading-list-actions" onclick="event.stopPropagation();">
-                <a asp-controller="Page" asp-action="Read" asp-route-id="@item.BookId" class="btn-read-now" title="Baca Sekarang">
-                    <i class="fas fa-book-open"></i>
+            <p class="book-description">
+                @(item.Book.PublishedYear.HasValue ? $"Diterbitkan tahun {item.Book.PublishedYear}" : "Tahun terbit tidak diketahui")@if(item.Book.PageCount.HasValue){<text>, @item.Book.PageCount halaman</text>}
+            </p>
+            
+            <div class="reading-list-primary-action">
+                <a asp-controller="Page" asp-action="Read" asp-route-id="@item.BookId" class="btn-read-full">
+                    BACA SEKARANG
                 </a>
-                @if (item.IsRead)
-                {
-                    <button class="btn-read-status completed" onclick="toggleRead(@item.Id, event)" title="Sudah Dibaca">
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                }
-                else
-                {
-                    <button class="btn-read-status unread" onclick="toggleRead(@item.Id, event)" title="Tandai Sudah Dibaca">
-                        <i class="far fa-circle"></i>
-                    </button>
-                }
-                
-                <button class="btn-favorite @(item.IsFavorite ? "active" : "")" onclick="toggleFavorite(@item.Id, event)" title="@(item.IsFavorite ? "Hapus dari Favorit" : "Tambah ke Favorit")">
+            </div>
+
+            <!-- Secondary Actions -->
+            <div class="reading-list-actions">
+                <button class="btn-read-status @(item.IsRead ? "active" : "")" onclick="toggleRead(@item.Id, event)" title="@(item.IsRead ? "Tandai Belum Dibaca" : "Tandai Sudah Dibaca")">
+                    <i class="fas fa-check-circle"></i>
+                </button>
+
+                <button class="btn-favorite @(item.IsFavorite ? "active" : "")" onclick="toggleFavorite(@item.Id, event)" title="@(item.IsFavorite ? "Favorit" : "Tambah ke Favorit")">
                     <i class="fas fa-heart"></i>
                 </button>
                 
-                <button class="btn-remove" onclick="removeFromReadingList(@item.Id, event)" title="Hapus dari Daftar Bacaan">
-                    <i class="fas fa-times"></i>
+                <button class="btn-offline" onclick="toggleOffline(@item.BookId, event)" title="Offline" id="offline-btn-@item.BookId">
+                    <i class="fas fa-cloud"></i>
                 </button>
 
-                <button class="btn-offline" onclick="toggleOffline(@item.BookId, event)" title="Simpan untuk Offline" id="offline-btn-@item.BookId">
-                    <i class="fas fa-cloud-download-alt"></i>
+                <button class="btn-remove" onclick="removeFromReadingList(@item.Id, event)" title="Hapus">
+                    <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
@@ -132,6 +106,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/db-utils.js"></script>
-    <script src="~/js/reading-list.js"></script>
+    <script src="~/js/features/reading-list.js"></script>
 }

@@ -1,0 +1,246 @@
+/* Auth Components - Reusable CSS Components */
+
+/* Password Strength Indicator */
+.password-strength {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.password-strength.weak {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.password-strength.medium {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.password-strength.strong {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Loading Button State */
+.submit-btn.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.submit-btn.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Success Message */
+.success-message {
+  color: #16a34a;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #dcfce7;
+  border-radius: 8px;
+  border-left: 4px solid #16a34a;
+}
+
+/* Info Message */
+.info-message {
+  color: #0369a1;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #dbeafe;
+  border-radius: 8px;
+  border-left: 4px solid #0369a1;
+}
+
+/* Form Validation States */
+.form-input.valid {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.form-input.invalid {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Checkbox Component */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  accent-color: #4f46e5;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.checkbox-label a {
+  color: #4f46e5;
+  text-decoration: none;
+}
+
+.checkbox-label a:hover {
+  color: #4338ca;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .auth-card {
+    border-radius: 16px;
+  }
+
+  .logo-section {
+    padding: 24px;
+  }
+
+  .form-section {
+    padding: 24px;
+  }
+
+  .form-title {
+    font-size: 20px;
+  }
+
+  .logo-image {
+    height: 48px;
+  }
+}
+/* ===================================
+   FORCE LIGHT MODE TEXT VISIBILITY
+   =================================== */
+@media (prefers-color-scheme: light) {
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  /* Section title */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    color: #0f172a !important;
+  }
+
+  /* Featured books title */
+  .featured-title,
+  .section-title {
+    color: #0f172a !important;
+  }
+
+  /* Book card */
+  .book-card,
+  .reading-list-card {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Book texts */
+  .book-title,
+  .reading-card-title {
+    color: #0f172a !important;
+  }
+
+  .book-author,
+  .reading-card-author {
+    color: #475569 !important;
+  }
+
+  .book-description,
+  .reading-card-description {
+    color: #64748b !important;
+  }
+
+  /* Meta info (year, rating, etc) */
+  .book-meta,
+  .reading-card-meta {
+    color: #64748b !important;
+  }
+
+  /* Category badge */
+  .category-badge,
+  .card-category {
+    background-color: #e0e7ff;
+    color: #3730a3 !important;
+    font-weight: 600;
+  }
+
+  /* Sort & result text */
+  .sort-label,
+  .result-count,
+  .showing-results {
+    color: #334155 !important;
+  }
+
+  /* Tabs */
+  .tab-btn {
+    color: #334155 !important;
+  }
+
+  .tab-btn.active {
+    background-color: #2563eb;
+    color: #ffffff !important;
+  }
+
+  /* Buttons */
+  .btn-add-book,
+  .btn-reading {
+    color: #ffffff !important;
+  }
+}
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.auth-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.auth-modal.hidden {
+  display: none;
+}

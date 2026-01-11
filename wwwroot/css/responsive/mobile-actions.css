@@ -1,0 +1,114 @@
+/* ===========================
+   Lentera - Mobile Actions & Auth
+   =========================== */
+
+@media (max-width: 991px) {
+  .navbar-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    overflow: visible;
+  }
+
+  .theme-toggle {
+    width: 100%;
+    height: 48px;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    font-size: 1.1rem;
+    color: var(--text-primary);
+  }
+
+  html[data-theme="light"] .theme-toggle {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+  }
+
+  .auth-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-md);
+  }
+
+  .btn-login,
+  .btn-register {
+    width: 100%;
+    text-align: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1rem;
+    justify-content: center;
+  }
+
+  .btn-login:hover,
+  .btn-register:hover {
+    transform: translateY(-2px);
+  }
+
+  .user-dropdown {
+    width: 100%;
+    color: var(--text-primary);
+  }
+
+  .user-avatar {
+    width: 100% !important;
+    justify-content: space-between !important;
+    padding: var(--spacing-md) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-md);
+  }
+
+  html[data-theme="light"] .user-avatar {
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .user-dropdown .dropdown-menu {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    margin-top: var(--spacing-sm) !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+    border: 1px solid rgba(239, 68, 68, 0.1) !important;
+    box-shadow: none !important;
+    opacity: 0.8 !important; /* Start slightly faded when not visible if logic uses opacity */
+    visibility: hidden;
+    display: none;
+    transform: none !important;
+    padding: 0 !important;
+    transition: all 0.3s ease;
+  }
+
+  .user-dropdown .dropdown-menu.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin-top: var(--spacing-sm) !important;
+  }
+
+  .dropdown-item {
+    padding: var(--spacing-md) !important;
+    font-size: 1rem !important;
+    justify-content: center !important;
+    color: #ef4444 !important; /* Soft red for logout */
+    font-weight: 600 !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-sm) !important;
+  }
+
+  .dropdown-item:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    transform: none !important;
+  }
+
+  .dropdown-item i {
+    font-size: 1.1rem !important;
+  }
+}
