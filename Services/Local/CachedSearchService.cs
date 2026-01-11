@@ -17,7 +17,7 @@ namespace paradaya_lentera.Services.Local
         private static readonly TimeSpan SearchCacheDuration = TimeSpan.FromMinutes(7);
         private static readonly TimeSpan TopSavedBooksCacheDuration = TimeSpan.FromMinutes(15);
 
-        public async Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query)
+        public async Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query, int limit = 50)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
@@ -25,24 +25,24 @@ namespace paradaya_lentera.Services.Local
             }
 
             var normalizedQuery = query.Trim().ToLowerInvariant();
-            var cacheKey = $"{SearchCachePrefix}{normalizedQuery}";
+            var cacheKey = $"{SearchCachePrefix}{normalizedQuery}_{limit}";
 
             try
             {
                 var cachedResult = await cacheService.GetAsync<OpenLibrarySearchResponse>(cacheKey);
                 if (cachedResult != null)
                 {
-                    logger.LogInformation("Search cache hit for query: {Query}", query);
+                    logger.LogInformation("Search cache hit for query: {Query} (limit: {Limit})", query, limit);
                     return cachedResult;
                 }
 
-                logger.LogInformation("Search cache miss for query: {Query}, fetching from API", query);
-                var apiResult = await openLibraryService.SearchBooksAsync(query);
+                logger.LogInformation("Search cache miss for query: {Query} (limit: {Limit}), fetching from API", query, limit);
+                var apiResult = await openLibraryService.SearchBooksAsync(query, limit);
 
                 if (apiResult != null)
                 {
                     await cacheService.SetAsync(cacheKey, apiResult, SearchCacheDuration);
-                    logger.LogInformation("Search result cached for query: {Query}", query);
+                    logger.LogInformation("Search result cached for query: {Query} (limit: {Limit})", query, limit);
                 }
 
                 return apiResult;
@@ -53,7 +53,7 @@ namespace paradaya_lentera.Services.Local
                 
                 try
                 {
-                    return await openLibraryService.SearchBooksAsync(query);
+                    return await openLibraryService.SearchBooksAsync(query, limit);
                 }
                 catch (Exception fallbackEx)
                 {
