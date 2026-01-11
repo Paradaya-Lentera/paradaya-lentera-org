@@ -49,8 +49,18 @@ class LazySearch {
       featuredPagination.style.display = "none";
     }
 
-    booksGrid.innerHTML =
-      '<div class="text-center w-100 py-5"><div class="spinner-border text-primary"></div><p class="text-white mt-3">Mencari di Open Library...</p></div>';
+    booksGrid.innerHTML = `
+      <div class="loading-container w-100">
+        <lottie-player 
+          src="/images/loading.json" 
+          background="transparent" 
+          speed="1" 
+          style="width: 250px; height: 250px;" 
+          loop 
+          autoplay>
+        </lottie-player>
+        <p class="loading-text">Menyiapkan buku pilihan untukmu...</p>
+      </div>`;
 
     try {
       const response = await fetch(
@@ -59,7 +69,10 @@ class LazySearch {
       const data = await response.json();
 
       if (data && data.docs && data.docs.length > 0) {
-        this.allSearchResults = data.docs;
+        this.allSearchResults = data.docs.map((doc, index) => ({
+          ...doc,
+          originalIndex: index,
+        }));
         console.log(`🔍 Found ${this.allSearchResults.length} books`);
 
         booksGrid.innerHTML = "";
@@ -312,6 +325,35 @@ class LazySearch {
 
     const featuredPagination = document.getElementById("paginationWrapper");
     if (featuredPagination) featuredPagination.style.display = "flex";
+  }
+
+  sortResults(criteria) {
+    if (!this.allSearchResults || this.allSearchResults.length === 0) return;
+
+    console.log(`Sorting results by: ${criteria}`);
+
+    switch (criteria) {
+      case "date":
+        this.allSearchResults.sort((a, b) => {
+          const yearA = a.first_publish_year || 0;
+          const yearB = b.first_publish_year || 0;
+          return yearB - yearA; // Newest first
+        });
+        break;
+      case "title":
+        this.allSearchResults.sort((a, b) => {
+          return (a.title || "").localeCompare(b.title || "");
+        });
+        break;
+      case "relevance":
+      default:
+        // Revert to original order (Open Library's relevance)
+        this.allSearchResults.sort((a, b) => a.originalIndex - b.originalIndex);
+        break;
+    }
+
+    // Reset to page 1
+    this.renderPage(1);
   }
 }
 

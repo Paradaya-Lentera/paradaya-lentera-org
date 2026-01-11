@@ -16,12 +16,12 @@ namespace paradaya_lentera.Services.External
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
 
-        public async Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query)
+        public async Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query, int limit = 50)
         {
             try
             {
                 var response = await _httpClient.GetFromJsonAsync<OpenLibrarySearchResponse>(
-                    $"/search.json?q={Uri.EscapeDataString(query)}&fields=key,title,author_name,first_publish_year,isbn,cover_i,number_of_pages_median,publisher,subject,ia,language,subtitle&limit=50");
+                    $"/search.json?q={Uri.EscapeDataString(query)}&fields=key,title,author_name,first_publish_year,isbn,cover_i,number_of_pages_median,publisher,subject,ia,language,subtitle&limit={limit}");
                 return response;
             }
             catch (HttpRequestException ex)

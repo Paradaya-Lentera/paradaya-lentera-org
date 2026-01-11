@@ -11,10 +11,17 @@ function handleImageLoad(img) {
 
   img.classList.add("loaded");
   img.style.opacity = "1";
+  img.style.display = "block";
 
-  const skeleton = img.parentElement?.querySelector(".image-skeleton");
-  if (skeleton) {
-    skeleton.style.display = "none";
+  const thumbnail = img.parentElement;
+  if (thumbnail) {
+    thumbnail.classList.remove("timeout");
+
+    const skeleton = thumbnail.querySelector(".image-skeleton");
+    if (skeleton) skeleton.style.display = "none";
+
+    const empty = thumbnail.querySelector(".image-empty");
+    if (empty) empty.style.display = "none";
   }
 }
 
@@ -60,5 +67,10 @@ function initializeImages(container, timeout = 3000) {
 
 // Export for module usage
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { handleImageLoad, handleImageTimeout, setupImageTimeout, initializeImages };
+  module.exports = {
+    handleImageLoad,
+    handleImageTimeout,
+    setupImageTimeout,
+    initializeImages,
+  };
 }

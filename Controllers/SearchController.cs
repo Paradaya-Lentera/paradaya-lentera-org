@@ -13,14 +13,14 @@ namespace paradaya_lentera.Controllers
         ILogger<SearchController> logger) : Controller
     {
         #region Constants
-        private const int FirstPageItemCount = 50;
-        private const int SubsequentPageItemCount = 6;
+        private const int FirstPageItemCount = 100;
+        private const int SubsequentPageItemCount = 12;
         private const int MinPaginationLimit = 1;
-        private const int MaxPaginationLimit = 100;
+        private const int MaxPaginationLimit = 200;
         private const int MaxTopSavedBooksCount = 100;
         private const int DefaultPopularBooksCount = 8;
         private const int InitialBooksLimit = 120;
-        private const int BooksPerCategory = 30;
+        private const int BooksPerCategory = 10;
         private const int CategoryCount = 4;
         #endregion
 
@@ -53,7 +53,7 @@ namespace paradaya_lentera.Controllers
             page = Math.Max(MinPaginationLimit, page);
             limit = Math.Clamp(limit, MinPaginationLimit, MaxPaginationLimit);
 
-            var results = await cachedSearchService.SearchBooksAsync(q);
+            var results = await cachedSearchService.SearchBooksAsync(q, limit: limit);
             
             if (results?.Docs == null)
                 return Json(results);
@@ -79,15 +79,21 @@ namespace paradaya_lentera.Controllers
         {
             try
             {
-                var books = await FetchBooksFromMultipleCategories();
+                var (books, categories) = await FetchBooksFromMultipleCategories();
                 
+                if (books == null || books.Count == 0)
+                {
+                    logger.LogWarning("No books fetched from API (empty result), falling back to JSON");
+                    return await GetFallbackFeaturedBooks();
+                }
+
                 logger.LogInformation($"Returning {books.Count} initial books from API");
                 
                 return Json(new
                 {
                     featured_books = books,
                     source = "api",
-                    categories = GetSelectedCategories()
+                    categories = categories
                 });
             }
             catch (Exception ex)
@@ -366,37 +372,51 @@ namespace paradaya_lentera.Controllers
         #endregion
 
         #region Private Helper Methods - Initial Books
-        private async Task<List<dynamic>> FetchBooksFromMultipleCategories()
+        private async Task<(List<dynamic> books, List<string> categories)> FetchBooksFromMultipleCategories()
         {
             var allBooks = new List<dynamic>();
-            var random = new Random();
+            
+            // Use Daily Token for Consistent Caching
+            // The seed changes only once per day
+            var seed = DateTime.UtcNow.Year * 1000 + DateTime.UtcNow.DayOfYear;
+            var random = new Random(seed);
+
             var selectedQueries = GetPopularQueries()
                 .OrderBy(x => random.Next())
                 .Take(CategoryCount)
                 .ToList();
 
-            foreach (var query in selectedQueries)
+            var tasks = selectedQueries.Select(async query =>
             {
                 try
                 {
-                    var booksFromCategory = await FetchBooksForCategory(query);
-                    allBooks.AddRange(booksFromCategory);
+                    return await FetchBooksForCategory(query);
                 }
                 catch (Exception ex)
                 {
                     logger.LogWarning(ex, $"Failed to fetch books for category: {query}");
+                    return Enumerable.Empty<dynamic>();
                 }
+            });
+
+            var results = await Task.WhenAll(tasks);
+
+            foreach (var result in results)
+            {
+                allBooks.AddRange(result);
             }
 
-            return allBooks
+            var shuffledBooks = allBooks
                 .OrderBy(x => random.Next())
                 .Take(InitialBooksLimit)
                 .ToList();
+
+            return (shuffledBooks, selectedQueries);
         }
 
         private async Task<IEnumerable<dynamic>> FetchBooksForCategory(string category)
         {
-            var results = await cachedSearchService.SearchBooksAsync(category);
+            var results = await cachedSearchService.SearchBooksAsync(category, limit: BooksPerCategory);
             
             if (results?.Docs == null || !results.Docs.Any())
                 return Enumerable.Empty<dynamic>();
@@ -410,7 +430,7 @@ namespace paradaya_lentera.Controllers
                     year = book.FirstPublishYear ?? 0,
                     isbn = book.Isbn?.FirstOrDefault() ?? "",
                     thumbnail = book.CoverI.HasValue
-                        ? $"https://covers.openlibrary.org/b/id/{book.CoverI}-L.jpg"
+                        ? $"https://covers.openlibrary.org/b/id/{book.CoverI}-M.jpg"
                         : "",
                     description = book.Subtitle ?? $"Published in {book.FirstPublishYear}",
                     pages = 0,
@@ -457,7 +477,9 @@ namespace paradaya_lentera.Controllers
 
         private List<string> GetSelectedCategories()
         {
-            var random = new Random();
+            var seed = DateTime.UtcNow.Year * 1000 + DateTime.UtcNow.DayOfYear;
+            var random = new Random(seed);
+            
             return GetPopularQueries()
                 .OrderBy(x => random.Next())
                 .Take(CategoryCount)

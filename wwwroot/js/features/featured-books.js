@@ -268,7 +268,18 @@ class FeaturedBooks {
   showLoading() {
     if (this.loadingElement) this.loadingElement.style.display = "block";
     if (this.container)
-      this.container.innerHTML = '<div class="loading">Loading books...</div>';
+      this.container.innerHTML = `
+        <div class="loading-container w-100">
+          <lottie-player 
+            src="/images/loading.json" 
+            background="transparent" 
+            speed="1" 
+            style="width: 250px; height: 250px;" 
+            loop 
+            autoplay>
+          </lottie-player>
+          <p class="loading-text">Menyiapkan buku pilihan untukmu...</p>
+        </div>`;
   }
 
   hideLoading() {
