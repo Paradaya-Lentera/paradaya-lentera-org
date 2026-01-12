@@ -1,16 +1,34 @@
-const CACHE_NAME = "lentera-offline-v2";
+const CACHE_NAME = "lentera-offline-v3";
 const STATIC_ASSETS = [
   "/",
+  "/Page/ReadingList",
+
+  // CSS
   "/css/site.css",
-  "/css/reading-list.css",
+  "/css/pages/reading-list.css",
   "/css/reading-list-extra.css",
-  "/css/lentera.css",
+  "/css/pages/lentera.css",
   "/css/read.css",
-  "/js/site.js",
-  "/js/reading-list.js",
-  "/js/db-utils.js",
-  "/js/navbar.js",
-  "/js/image-utils.js",
+  "/css/fontawesome-fallback.css",
+
+  // JS Core
+  "/js/core/db.js",
+  "/js/core/alert.js",
+  "/js/core/image.js",
+
+  // JS Components
+  "/js/components/navbar.js",
+  "/js/components/theme.js",
+  "/js/components/dropdown.js",
+  "/js/components/auth-modal.js",
+
+  // JS Features
+  "/js/features/reading-list.js",
+
+  // JS Vendor
+  "/js/vendor/fontawesome-fallback.js",
+
+  // CDN
   "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",

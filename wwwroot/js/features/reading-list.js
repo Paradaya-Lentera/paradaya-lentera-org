@@ -3,7 +3,10 @@
  * Handles reading list management with offline support
  */
 
-console.log("ReadingList JS loaded. jQuery available:", typeof $ !== "undefined");
+console.log(
+  "ReadingList JS loaded. jQuery available:",
+  typeof $ !== "undefined"
+);
 
 // ==================== Core Functions ====================
 
@@ -14,7 +17,8 @@ function viewBookDetail(bookId) {
 function removeFromReadingList(readinglistId, event) {
   event.stopPropagation();
 
-  if (!confirm("Apakah Anda yakin ingin menghapus buku ini dari Reading List?")) return;
+  if (!confirm("Apakah Anda yakin ingin menghapus buku ini dari Reading List?"))
+    return;
 
   if (navigator.onLine) {
     $.ajax({
@@ -98,7 +102,10 @@ function toggleRead(readinglistId, event) {
       success: function (response) {
         if (response.success) {
           updateReadUI(btn, response.isRead);
-          card.setAttribute("data-read", response.isRead.toString().toLowerCase());
+          card.setAttribute(
+            "data-read",
+            response.isRead.toString().toLowerCase()
+          );
           showAlert(response.message, "success");
         } else {
           showAlert(response.message, "warning");
@@ -267,7 +274,9 @@ async function saveReadingListToDB() {
 function initTabFiltering() {
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", function () {
-      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document
+        .querySelectorAll(".tab-btn")
+        .forEach((b) => b.classList.remove("active"));
       this.classList.add("active");
 
       const filter = this.getAttribute("data-status");
@@ -277,9 +286,12 @@ function initTabFiltering() {
       cards.forEach((card) => {
         let isVisible = false;
         if (filter === "all") isVisible = true;
-        else if (filter === "Favorite" && card.dataset.favorite === "true") isVisible = true;
-        else if (filter === "Read" && card.dataset.read === "true") isVisible = true;
-        else if (filter === "Unread" && card.dataset.read === "false") isVisible = true;
+        else if (filter === "Favorite" && card.dataset.favorite === "true")
+          isVisible = true;
+        else if (filter === "Read" && card.dataset.read === "true")
+          isVisible = true;
+        else if (filter === "Unread" && card.dataset.read === "false")
+          isVisible = true;
 
         card.style.display = isVisible ? "block" : "none";
         if (isVisible) visibleCount++;
@@ -307,7 +319,20 @@ document.addEventListener("DOMContentLoaded", async function () {
   saveReadingListToDB();
   processActionQueue();
 
-  window.addEventListener("online", processActionQueue);
+  // Online/Offline event handlers
+  window.addEventListener("online", () => {
+    document.body.classList.remove("offline-mode");
+    showAlert("Koneksi kembali! Menyinkronkan data...", "info");
+    processActionQueue();
+  });
+
+  window.addEventListener("offline", () => {
+    document.body.classList.add("offline-mode");
+    showAlert(
+      "Anda sedang offline. Perubahan akan disimpan dan disinkronkan nanti.",
+      "warning"
+    );
+  });
 
   // Check cached books
   if ("caches" in window) {

@@ -214,12 +214,25 @@
 
   /* Tabs */
   .tab-btn {
-    color: #334155 !important;
+    background-color: rgba(15, 23, 42, 0.8);
+    border-color: rgba(30, 41, 59, 0.8);
+    color: rgba(148, 163, 184, 0.9) !important;
+    font-weight: 600;
+  }
+
+  .tab-btn:hover {
+    background-color: rgba(30, 41, 59, 0.9);
+    color: rgba(226, 232, 240, 1) !important;
+    border-color: rgba(59, 130, 246, 0.5);
+    font-weight: 700;
   }
 
   .tab-btn.active {
-    background-color: #2563eb;
-    color: #ffffff !important;
+    background-color: rgba(59, 130, 246, 0.9);
+    color: rgba(255, 255, 255, 1) !important;
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+    font-weight: 700;
   }
 
   /* Buttons */

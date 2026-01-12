@@ -1,11 +1,10 @@
 using paradaya_lentera.Models.External.OpenLibrary;
+using paradaya_lentera.Services.External;
 
 namespace paradaya_lentera.Services.Local
 {
-    public interface ICachedSearchService
+    public interface ICachedSearchService : IOpenLibraryService
     {
-        Task<OpenLibrarySearchResponse?> SearchBooksAsync(string query, int limit = 50);
-
         Task<List<object>> GetTopSavedBooksAsync(int count = 10);
 
         Task ClearSearchCacheAsync();
