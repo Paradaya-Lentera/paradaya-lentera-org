@@ -133,6 +133,31 @@ public class PageController : Controller
         return View(books);
     }
 
+    // API endpoint for reading list data
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetReadingListData()
+    {
+        var userId = User.GetUserId();
+        var books = await _readingListService.GetUserReadingListAsync(userId);
+        
+        var data = books.Select(item => new
+        {
+            id = item.Id,
+            bookId = item.BookId,
+            title = item.Book.Title,
+            author = item.Book.Author,
+            thumbnail = item.Book.Thumbnail,
+            category = item.Book.Category ?? "GENERAL",
+            publishedYear = item.Book.PublishedYear,
+            pageCount = item.Book.PageCount,
+            isFavorite = item.IsFavorite,
+            isRead = item.IsRead
+        });
+
+        return Json(new { success = true, data });
+    }
+
     // ADD / REMOVE
     [HttpPost]
     [Authorize]
@@ -219,20 +244,17 @@ public class PageController : Controller
 
         bool success;
         bool newState;
-        string message;
 
         if (isInList)
         {
             var list = await _readingListService.GetByUserAndBookAsync(userId, bookId);
             success = await _readingListService.RemoveFromReadingListAsync(list!.Id);
             newState = false;
-            message = "Buku dihapus dari Reading List";
         }
         else
         {
             success = await _readingListService.AddToReadingListAsync(userId, bookId);
             newState = true;
-            message = "Buku ditambahkan ke Reading List";
         }
 
         return Json(new
