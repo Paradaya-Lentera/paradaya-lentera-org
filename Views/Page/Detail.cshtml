@@ -40,8 +40,12 @@
         {
             @if (Model.IsInReadingList)
             {
-
-
+                <!-- HAPUS DARI LIST -->
+                <button id="readingListBtn"
+                        class="action-btn btn-remove"
+                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
+                    <i class="fas fa-bookmark"></i> Hapus dari Daftar
+                </button>
             }
             else
             {
@@ -332,11 +336,58 @@
 
                 const data = await response.json();
                 if (data.success) {
-                    window.location.reload();
+                    // Update UI immediately
+                    updateReadingListButton(data.isInReadingList);
+                    
+                    // Clear reading list cache to force refresh when user visits the page
+                    if ('caches' in window) {
+                        caches.delete('reading-list-cache');
+                    }
+                    
+                    // Set flag in sessionStorage to indicate reading list needs refresh
+                    sessionStorage.setItem('readingListNeedsRefresh', 'true');
+                    
+                    // Optional: Show success message
+                    showAlert(data.isInReadingList ? 'Buku ditambahkan ke Reading List' : 'Buku dihapus dari Reading List', 'success');
                 }
             } catch (error) {
                 console.error('Error toggling reading list:', error);
+                showAlert('Terjadi kesalahan. Silakan coba lagi.', 'error');
             }
+        }
+
+        function updateReadingListButton(isInReadingList) {
+            const btn = document.getElementById('readingListBtn');
+            if (btn) {
+                if (isInReadingList) {
+                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Hapus dari Daftar';
+                    btn.classList.remove('btn-add');
+                    btn.classList.add('btn-remove');
+                } else {
+                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Simpan Ke Daftar';
+                    btn.classList.remove('btn-remove');
+                    btn.classList.add('btn-add');
+                }
+            }
+        }
+
+        function showAlert(message, type) {
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Insert at top of container
+            const container = document.querySelector('.book-detail-container') || document.body;
+            container.insertBefore(alert, container.firstChild);
+            
+            // Auto dismiss after 3 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
         }
 
         // Add 'loaded' class to dynamic data for better visual

@@ -8,6 +8,121 @@ console.log(
   typeof $ !== "undefined"
 );
 
+// ==================== Reading List Refresh ====================
+
+async function checkAndRefreshReadingList() {
+  // Check if reading list needs refresh
+  if (sessionStorage.getItem('readingListNeedsRefresh') === 'true') {
+    sessionStorage.removeItem('readingListNeedsRefresh');
+    await refreshReadingListData();
+  }
+}
+
+async function refreshReadingListData() {
+  try {
+    const response = await fetch('/Page/GetReadingListData', {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        updateReadingListUI(result.data);
+        console.log('Reading list refreshed successfully');
+      }
+    }
+  } catch (error) {
+    console.error('Failed to refresh reading list:', error);
+  }
+}
+
+function updateReadingListUI(books) {
+  const currentGrid = document.querySelector('#readingListGrid');
+  const emptyState = document.getElementById('emptyState');
+  
+  if (!currentGrid) return;
+  
+  if (books.length === 0) {
+    currentGrid.style.display = 'none';
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  // Generate HTML for books
+  const booksHTML = books.map(item => `
+    <div class="book-card"
+         data-favorite="${item.isFavorite.toString().toLowerCase()}"
+         data-read="${item.isRead.toString().toLowerCase()}"
+         data-book-id="${item.bookId}">
+
+        <div class="book-cover-wrapper" onclick="viewBookDetail(${item.bookId})">
+            <img src="${item.thumbnail || ''}"
+                 alt="${item.title}"
+                 class="book-cover"
+                 loading="lazy"
+                 onload="handleImageLoad(this)"
+                 onerror="handleImageTimeout(this)">
+            ${item.isRead ? '<div class="offline-badge" style="background: var(--accent-green);">SUDAH DIBACA</div>' : ''}
+        </div>
+
+        <div class="book-info">
+            <div class="book-category">${(item.category || 'GENERAL').toUpperCase()}</div>
+
+            <h3 class="book-title" onclick="viewBookDetail(${item.bookId})">${item.title}</h3>
+            <p class="book-author">${item.author}${item.publishedYear ? ` • ${item.publishedYear}` : ''}</p>
+            
+            <p class="book-description">
+                ${item.publishedYear ? `Diterbitkan tahun ${item.publishedYear}` : 'Tahun terbit tidak diketahui'}${item.pageCount ? `, ${item.pageCount} halaman` : ''}
+            </p>
+            
+            <div class="reading-list-primary-action">
+                <a href="/Page/Read?id=${item.bookId}" class="btn-read-full">
+                    BACA SEKARANG
+                </a>
+            </div>
+
+            <!-- Secondary Actions -->
+            <div class="reading-list-actions">
+                <button class="btn-read-status ${item.isRead ? 'active' : ''}" onclick="toggleRead(${item.id}, event)" title="${item.isRead ? 'Tandai Belum Dibaca' : 'Tandai Sudah Dibaca'}">
+                    <i class="fas fa-check-circle"></i>
+                </button>
+
+                <button class="btn-favorite ${item.isFavorite ? 'active' : ''}" onclick="toggleFavorite(${item.id}, event)" title="${item.isFavorite ? 'Favorit' : 'Tambah ke Favorit'}">
+                    <i class="fas fa-heart"></i>
+                </button>
+                
+                <button class="btn-offline" onclick="toggleOffline(${item.bookId}, event)" title="Offline" id="offline-btn-${item.bookId}">
+                    <i class="fas fa-cloud"></i>
+                </button>
+
+                <button class="btn-remove" onclick="removeFromReadingList(${item.id}, event)" title="Hapus">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+  `).join('');
+  
+  // Update the grid
+  currentGrid.innerHTML = booksHTML;
+  currentGrid.style.display = 'grid';
+  emptyState.style.display = 'none';
+  
+  // Re-initialize images
+  initializeImages(currentGrid);
+  
+  // Re-apply current filter
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab) {
+    activeTab.click();
+  }
+}
+
 // ==================== Core Functions ====================
 
 function viewBookDetail(bookId) {
@@ -306,6 +421,9 @@ function initTabFiltering() {
 // ==================== Initialization ====================
 
 document.addEventListener("DOMContentLoaded", async function () {
+  // Check if reading list needs refresh first
+  await checkAndRefreshReadingList();
+  
   initTabFiltering();
   initializeImages(document);
   saveReadingListToDB();
@@ -340,7 +458,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 function initializeImages(container) {
-  const images = container.querySelectorAll(".book-thumbnail img");
+  const images = container.querySelectorAll(".book-thumbnail img, .book-cover");
   images.forEach((img) => {
     if (img.src && img.src !== "") {
       const timeoutId = setTimeout(() => handleImageTimeout(img), 3000);
@@ -350,4 +468,25 @@ function initializeImages(container) {
       handleImageTimeout(img);
     }
   });
+}
+
+function handleImageLoad(img) {
+  const timeoutId = img.getAttribute("data-timeout-id");
+  if (timeoutId) {
+    clearTimeout(parseInt(timeoutId));
+    img.removeAttribute("data-timeout-id");
+  }
+  img.style.opacity = "1";
+}
+
+function handleImageTimeout(img) {
+  const timeoutId = img.getAttribute("data-timeout-id");
+  if (timeoutId) {
+    clearTimeout(parseInt(timeoutId));
+    img.removeAttribute("data-timeout-id");
+  }
+  
+  // Set placeholder image or hide
+  img.style.opacity = "0.5";
+  img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='180' viewBox='0 0 120 180'%3E%3Crect width='120' height='180' fill='%23f0f0f0'/%3E%3Ctext x='60' y='90' text-anchor='middle' fill='%23999' font-size='12'%3ENo Image%3C/text%3E%3C/svg%3E";
 }
