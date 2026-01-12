@@ -66,8 +66,13 @@ namespace paradaya_lentera.Services.Local
             try
             {
                 var cached = await cacheService.GetAsync<OpenLibraryDoc>(cacheKey);
-                if (cached != null) return cached;
+                if (cached != null)
+                {
+                    logger.LogInformation("Book detail cache hit for ISBN: {Isbn}", isbn);
+                    return cached;
+                }
 
+                logger.LogInformation("Book detail cache miss for ISBN: {Isbn}, fetching from API", isbn);
                 var result = await openLibraryService.GetBookByIsbnAsync(isbn);
                 if (result != null)
                 {
@@ -91,8 +96,13 @@ namespace paradaya_lentera.Services.Local
             try
             {
                 var cached = await cacheService.GetAsync<OpenLibraryDoc>(cacheKey);
-                if (cached != null) return cached;
+                if (cached != null)
+                {
+                    logger.LogInformation("Book detail cache hit for Key: {Key}", key);
+                    return cached;
+                }
 
+                logger.LogInformation("Book detail cache miss for Key: {Key}, fetching from API", key);
                 var result = await openLibraryService.GetBookByKeyAsync(key);
                 if (result != null)
                 {
@@ -116,8 +126,13 @@ namespace paradaya_lentera.Services.Local
             try
             {
                 var cached = await cacheService.GetAsync<OpenLibraryWork>(cacheKey);
-                if (cached != null) return cached;
+                if (cached != null)
+                {
+                    logger.LogInformation("Work cache hit for Key: {WorkKey}", workKey);
+                    return cached;
+                }
 
+                logger.LogInformation("Work cache miss for Key: {WorkKey}, fetching from API", workKey);
                 var result = await openLibraryService.GetWorkAsync(workKey);
                 if (result != null)
                 {
@@ -141,8 +156,13 @@ namespace paradaya_lentera.Services.Local
             try
             {
                 var cached = await cacheService.GetAsync<OpenLibraryRating>(cacheKey);
-                if (cached != null) return cached;
+                if (cached != null)
+                {
+                    logger.LogInformation("Rating cache hit for Key: {WorkKey}", workKey);
+                    return cached;
+                }
 
+                logger.LogInformation("Rating cache miss for Key: {WorkKey}, fetching from API", workKey);
                 var result = await openLibraryService.GetWorkRatingAsync(workKey);
                 if (result != null)
                 {
@@ -164,9 +184,11 @@ namespace paradaya_lentera.Services.Local
                 var cachedResult = await cacheService.GetAsync<List<object>>(TopSavedBooksCacheKey);
                 if (cachedResult != null)
                 {
+                    logger.LogInformation("Top saved books cache hit");
                     return cachedResult.Take(count).ToList();
                 }
 
+                logger.LogInformation("Top saved books cache miss, calculating from DB");
                 var topSavedBooks = await CalculateTopSavedBooksAsync(count);
 
                 if (topSavedBooks.Count > 0)
