@@ -18,9 +18,13 @@ builder.Services.AddScoped<IReadingListService, ReadingListService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
-builder.Services.AddScoped<ICachedSearchService, CachedSearchService>();
+// Register the concrete OpenLibraryService (inner service)
+builder.Services.AddHttpClient<OpenLibraryService>();
 
-builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>();
+// Register CachedSearchService as ICachedSearchService (for legacy/specific references)
+// and as IOpenLibraryService (to act as a caching decorator)
+builder.Services.AddScoped<ICachedSearchService, CachedSearchService>();
+builder.Services.AddScoped<IOpenLibraryService>(sp => sp.GetRequiredService<ICachedSearchService>());
 
 const int authCookieExpirationDays = 7;
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

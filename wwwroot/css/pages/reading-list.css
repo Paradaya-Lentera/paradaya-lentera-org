@@ -44,7 +44,7 @@ body {
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  background: white;
+  background: var(--card-bg);
   color: var(--text-secondary);
   font-weight: 600;
   cursor: pointer;
@@ -58,10 +58,11 @@ body {
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: rgba(59, 130, 246, 0.9);
   color: white;
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+  font-weight: 700;
 }
 
 /* Books Grid */
@@ -360,11 +361,87 @@ html[data-theme="dark"] .book-cover-wrapper {
 }
 
 html[data-theme="dark"] .tab-btn {
-  background-color: var(--card-bg);
+  background-color: var(--darker-bg);
   border-color: var(--border-color);
   color: var(--text-secondary);
+  font-weight: 600;
+}
+
+html[data-theme="dark"] .tab-btn:hover {
+  background-color: var(--card-hover);
+  color: var(--text-primary);
+  border-color: rgba(59, 130, 246, 0.5);
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .tab-btn.active {
+  background: rgba(59, 130, 246, 0.9);
+  color: rgba(255, 255, 255, 1);
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+  font-weight: 700;
 }
 
 html[data-theme="dark"] .reading-list-actions {
   border-top-color: var(--border-color);
+}
+
+/* ===========================
+   Offline Mode Indicator
+   =========================== */
+
+/* Offline banner */
+body.offline-mode::before {
+  content: "⚠️ Mode Offline - Perubahan akan disinkronkan saat online";
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Dim cards slightly when offline */
+body.offline-mode .book-card {
+  opacity: 0.9;
+}
+
+/* Offline icon indicator */
+body.offline-mode .reading-list-actions::after {
+  content: "📡";
+  position: absolute;
+  top: -30px;
+  right: 10px;
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
 }
