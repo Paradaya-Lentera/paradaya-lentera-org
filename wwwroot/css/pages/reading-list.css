@@ -248,6 +248,10 @@ body {
   color: #ef4444;
 }
 
+.btn-favorite:not(.active) i {
+  color: #94a3b8;
+}
+
 .btn-favorite:not(.active):hover i {
   animation: heartBeat 1.5s infinite;
   color: #ef4444;
@@ -257,6 +261,10 @@ body {
 .btn-read-status.active i {
   color: #10b981 !important;
   animation: checkPop 0.4s ease-out;
+}
+
+.btn-read-status:not(.active) i {
+  color: #94a3b8;
 }
 
 .btn-read-status:hover i {
@@ -384,6 +392,23 @@ html[data-theme="dark"] .tab-btn.active {
 
 html[data-theme="dark"] .reading-list-actions {
   border-top-color: var(--border-color);
+}
+
+html[data-theme="dark"] .reading-list-actions button {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .reading-list-actions button:hover {
+  background: var(--darker-bg);
+  color: var(--primary-blue);
+}
+
+html[data-theme="dark"] .btn-favorite.active i {
+  color: #ef4444;
+}
+
+html[data-theme="dark"] .btn-read-status.active i {
+  color: #10b981 !important;
 }
 
 /* ===========================

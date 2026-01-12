@@ -92,7 +92,7 @@ public class PageController : Controller
     [Authorize]
     public async Task<IActionResult> Read(int? id, string? isbn, string? olkey)
     {
-        BookDetailViewModel viewModel = null;
+        BookDetailViewModel? viewModel = null;
 
         if (id.HasValue)
         {
@@ -161,11 +161,7 @@ public class PageController : Controller
                 return Json(new { success = false, message = "Item tidak ditemukan" });
             }
 
-            return Json(new {
-                success = true,
-                isFavorite = result,
-                message = "Status favorit diperbarui"
-            });
+            return Json(new { success = true, isFavorite = result.Value });
         }
         catch (Exception ex)
         {
@@ -201,11 +197,7 @@ public class PageController : Controller
                 return Json(new { success = false, message = "Item tidak ditemukan" });
             }
 
-            return Json(new {
-                success = true,
-                isRead = result,
-                message = "Status baca diperbarui"
-            });
+            return Json(new { success = true, isRead = result.Value });
         }
         catch (Exception ex)
         {
@@ -246,8 +238,7 @@ public class PageController : Controller
         return Json(new
         {
             success,
-            isInReadingList = newState,
-            message
+            isInReadingList = newState
         });
     }
 
@@ -274,8 +265,7 @@ public class PageController : Controller
 
             return Json(new
             {
-                success,
-                message = success ? "Buku berhasil dihapus dari Reading List" : "Gagal menghapus buku dari Reading List"
+                success
             });
         }
         catch (Exception ex)

@@ -31,9 +31,8 @@ function removeFromReadingList(readinglistId, event) {
       success: function (response) {
         if (response.success) {
           removeCardAnimation(event.target);
-          showAlert(response.message, "success");
         } else {
-          showAlert(response.message, "warning");
+          showAlert("Gagal menghapus dari reading list", "warning");
         }
       },
       error: handleAjaxError,
@@ -44,7 +43,6 @@ function removeFromReadingList(readinglistId, event) {
       __RequestVerificationToken: window.antiForgeryToken || "",
     }));
     removeCardAnimation(event.target);
-    showAlert("Permintaan hapus disimpan (Offline Mode)", "info");
   }
 }
 
@@ -67,9 +65,8 @@ function toggleFavorite(readinglistId, event) {
       success: function (response) {
         if (response.success) {
           updateFavoriteUI(btn, icon, card, response.isFavorite);
-          showAlert(response.message, "success");
         } else {
-          showAlert(response.message, "warning");
+          showAlert("Gagal mengubah status favorit", "warning");
         }
       },
       error: handleAjaxError,
@@ -80,7 +77,6 @@ function toggleFavorite(readinglistId, event) {
       __RequestVerificationToken: window.antiForgeryToken || "",
     }));
     updateFavoriteUI(btn, icon, card, isNowFavorite);
-    showAlert("Status favorit disimpan offline", "info");
   }
 }
 
@@ -89,7 +85,7 @@ function toggleRead(readinglistId, event) {
 
   const btn = event.target.closest(".btn-read-status");
   const card = btn.closest(".book-card");
-  const isNowRead = btn.classList.contains("unread");
+  const isNowRead = !btn.classList.contains("active");
 
   if (navigator.onLine) {
     $.ajax({
@@ -106,9 +102,8 @@ function toggleRead(readinglistId, event) {
             "data-read",
             response.isRead.toString().toLowerCase()
           );
-          showAlert(response.message, "success");
         } else {
-          showAlert(response.message, "warning");
+          showAlert("Gagal mengubah status baca", "warning");
         }
       },
       error: handleAjaxError,
@@ -120,7 +115,6 @@ function toggleRead(readinglistId, event) {
     }));
     updateReadUI(btn, isNowRead);
     card.setAttribute("data-read", isNowRead.toString().toLowerCase());
-    showAlert("Status bacaan disimpan offline", "info");
   }
 }
 
@@ -141,13 +135,11 @@ function updateFavoriteUI(btn, icon, card, isFavorite) {
 
 function updateReadUI(btn, isRead) {
   if (isRead) {
-    btn.classList.remove("unread");
-    btn.classList.add("completed");
+    btn.classList.add("active");
     btn.title = "Tandai Belum Dibaca";
     btn.innerHTML = '<i class="fas fa-check-circle"></i>';
   } else {
-    btn.classList.remove("completed");
-    btn.classList.add("unread");
+    btn.classList.remove("active");
     btn.title = "Tandai Sudah Dibaca";
     btn.innerHTML = '<i class="far fa-circle"></i>';
   }
@@ -230,7 +222,7 @@ async function processActionQueue() {
   }
 
   if (actions.length > 0) {
-    showAlert("Data offline berhasil disinkronisasi!", "success");
+    // Data synced silently
   }
 }
 
@@ -322,16 +314,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Online/Offline event handlers
   window.addEventListener("online", () => {
     document.body.classList.remove("offline-mode");
-    showAlert("Koneksi kembali! Menyinkronkan data...", "info");
     processActionQueue();
   });
 
   window.addEventListener("offline", () => {
     document.body.classList.add("offline-mode");
-    showAlert(
-      "Anda sedang offline. Perubahan akan disimpan dan disinkronkan nanti.",
-      "warning"
-    );
   });
 
   // Check cached books

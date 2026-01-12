@@ -40,26 +40,8 @@
         {
             @if (Model.IsInReadingList)
             {
-                <!-- FAVORIT -->
-                <button id="favoriteBtn"
-                        class="action-btn btn-favorite w-100 mb-2"
-                        onclick="toggleFavorite(@Model.ReadingListId)">
-                    <i class="fas fa-star"></i> @(Model.IsFavorite ? "Favorit" : "Tambah Favorit")
-                </button>
 
-                <!-- SELESAI DIBACA -->
-                <button id="readBtn"
-                        class="action-btn btn-read w-100 mb-2"
-                        onclick="toggleRead(@Model.ReadingListId)">
-                    <i class="fas fa-check"></i> @(Model.IsRead ? "Selesai Dibaca" : "Belum Dibaca")
-                </button>
 
-                <!-- HAPUS DARI LIST -->
-                <button id="readingListBtn"
-                        class="action-btn btn-remove w-100"
-                        onclick="toggleReadingList(@Model.LocalBookId.Value)">
-                    <i class="fas fa-trash"></i> Hapus dari Daftar
-                </button>
             }
             else
             {

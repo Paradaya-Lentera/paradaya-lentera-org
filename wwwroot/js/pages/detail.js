@@ -51,9 +51,9 @@ function toggleReadingList(bookId) {
           if (text) text.textContent = "Tambahkan ke Daftar";
         }
 
-        showAlert(response.message, "success");
+        // Success - no notification needed
       } else {
-        showAlert(response.message, "warning");
+        showAlert("Gagal mengubah daftar bacaan", "warning");
       }
     },
     error: function (xhr) {
@@ -79,7 +79,6 @@ function toggleFavorite(readingListId) {
       const btn = document.getElementById("favoriteBtn");
       btn.innerHTML = res.isFavorite ? "⭐ Favorit" : "☆ Favorit";
     }
-    alert(res.message);
   });
 }
 
@@ -92,7 +91,6 @@ function toggleRead(readingListId) {
       const btn = document.getElementById("readBtn");
       btn.innerHTML = res.isRead ? "Selesai Dibaca" : "Tandai Belum Dibaca";
     }
-    alert(res.message);
   });
 }
 
