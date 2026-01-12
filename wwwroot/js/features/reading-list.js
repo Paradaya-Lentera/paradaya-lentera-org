@@ -11,8 +11,12 @@ console.log(
 // ==================== Reading List Refresh ====================
 
 async function checkAndRefreshReadingList() {
-  // Check if reading list needs refresh
-  if (sessionStorage.getItem('readingListNeedsRefresh') === 'true') {
+  // Check if reading list needs refresh using CacheManager
+  if (typeof CacheManager !== 'undefined' && CacheManager.needsReadingListRefresh()) {
+    CacheManager.clearReadingListRefreshFlag();
+    await refreshReadingListData();
+  } else if (sessionStorage.getItem('readingListNeedsRefresh') === 'true') {
+    // Fallback for older implementation
     sessionStorage.removeItem('readingListNeedsRefresh');
     await refreshReadingListData();
   }
@@ -20,11 +24,14 @@ async function checkAndRefreshReadingList() {
 
 async function refreshReadingListData() {
   try {
-    const response = await fetch('/Page/GetReadingListData', {
+    // Add timestamp to prevent any caching
+    const timestamp = new Date().getTime();
+    const response = await fetch(`/Page/GetReadingListData?_t=${timestamp}`, {
       method: 'GET',
       headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
     

@@ -1,4 +1,4 @@
-const CACHE_NAME = "lentera-offline-v3";
+const CACHE_NAME = "lentera-offline-v4";
 const STATIC_ASSETS = [
   "/",
   "/Page/ReadingList",
@@ -58,11 +58,45 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Handle messages from clients
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === 'CLEAR_READING_LIST_CACHE') {
+    // Clear reading list related caches
+    caches.open(CACHE_NAME).then(cache => {
+      cache.delete('/Page/ReadingList');
+      cache.delete('/Page/GetReadingListData');
+      // Also clear any requests with query parameters
+      cache.keys().then(keys => {
+        keys.forEach(request => {
+          if (request.url.includes('/Page/ReadingList') || 
+              request.url.includes('/Page/GetReadingListData')) {
+            cache.delete(request);
+          }
+        });
+      });
+      console.log('Reading list cache cleared by service worker');
+    });
+  }
+});
+
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
   // Skip non-GET requests
   if (event.request.method !== "GET") return;
+
+  // Skip caching for reading list API endpoints to ensure fresh data
+  if (url.pathname === '/Page/GetReadingListData' || 
+      url.pathname === '/Page/ReadingList') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // Only fallback to cache if network fails
+          return caches.match(event.request, { ignoreSearch: true });
+        })
+    );
+    return;
+  }
 
   // Strategy 1: Cache First for Static Assets & CDNs
   const isStaticAsset = STATIC_ASSETS.some(
@@ -95,10 +129,12 @@ self.addEventListener("fetch", (event) => {
     fetch(event.request)
       .then((networkResponse) => {
         // Only cache successful basic responses (200 OK)
+        // But skip caching for reading list page to ensure fresh data
         if (
           networkResponse &&
           networkResponse.status === 200 &&
-          networkResponse.type === "basic"
+          networkResponse.type === "basic" &&
+          url.pathname !== '/Page/ReadingList'
         ) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {

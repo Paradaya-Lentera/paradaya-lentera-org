@@ -339,13 +339,20 @@
                     // Update UI immediately
                     updateReadingListButton(data.isInReadingList);
                     
-                    // Clear reading list cache to force refresh when user visits the page
-                    if ('caches' in window) {
-                        caches.delete('reading-list-cache');
+                    // Use CacheManager to handle all cache clearing
+                    if (typeof CacheManager !== 'undefined') {
+                        await CacheManager.handleReadingListUpdate();
+                    } else {
+                        // Fallback for older browsers or if CacheManager fails to load
+                        if ('caches' in window) {
+                            caches.delete('reading-list-cache');
+                            caches.open('lentera-offline-v4').then(cache => {
+                                cache.delete('/Page/ReadingList');
+                                cache.delete('/Page/GetReadingListData');
+                            });
+                        }
+                        sessionStorage.setItem('readingListNeedsRefresh', 'true');
                     }
-                    
-                    // Set flag in sessionStorage to indicate reading list needs refresh
-                    sessionStorage.setItem('readingListNeedsRefresh', 'true');
                     
                     // Optional: Show success message
                     showAlert(data.isInReadingList ? 'Buku ditambahkan ke Reading List' : 'Buku dihapus dari Reading List', 'success');

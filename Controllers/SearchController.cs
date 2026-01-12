@@ -172,6 +172,11 @@ namespace paradaya_lentera.Controllers
 
                 TempData[success ? "SuccessMessage" : (message.Contains("sudah ada") ? "InfoMessage" : "ErrorMessage")] = message;
                 
+                // Add cache-busting headers to ensure fresh reading list page
+                Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+                Response.Headers.Add("Pragma", "no-cache");
+                Response.Headers.Add("Expires", "0");
+                
                 return RedirectToAction("ReadingList", "Page");
             }
             catch (Exception ex)

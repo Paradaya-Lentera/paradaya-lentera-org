@@ -106,4 +106,24 @@
 
 @section Scripts {
     <script src="~/js/features/reading-list.js"></script>
+    <script>
+        // Ensure fresh data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear any cached reading list data when page loads
+            if (typeof CacheManager !== 'undefined') {
+                CacheManager.clearReadingListCache();
+            }
+            
+            // Add cache-busting headers for any AJAX requests from this page
+            if (typeof $ !== 'undefined') {
+                $.ajaxSetup({
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+                        xhr.setRequestHeader('Pragma', 'no-cache');
+                        xhr.setRequestHeader('Expires', '0');
+                    }
+                });
+            }
+        });
+    </script>
 }

@@ -128,6 +128,11 @@ public class PageController : Controller
     [Authorize]
     public async Task<IActionResult> ReadingList()
     {
+        // Prevent caching of reading list page
+        Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+        Response.Headers.Add("Pragma", "no-cache");
+        Response.Headers.Add("Expires", "0");
+        
         var userId = User.GetUserId();
         var books = await _readingListService.GetUserReadingListAsync(userId);
         return View(books);
@@ -138,6 +143,11 @@ public class PageController : Controller
     [Authorize]
     public async Task<IActionResult> GetReadingListData()
     {
+        // Prevent caching of reading list data
+        Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+        Response.Headers.Add("Pragma", "no-cache");
+        Response.Headers.Add("Expires", "0");
+        
         var userId = User.GetUserId();
         var books = await _readingListService.GetUserReadingListAsync(userId);
         
