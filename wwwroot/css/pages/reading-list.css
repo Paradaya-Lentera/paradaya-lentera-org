@@ -1,0 +1,605 @@
+/* ===========================
+   Lentera - Reading List Styles
+   Vertical Premium Card Design
+   =========================== */
+
+.reading-list-container {
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+body {
+  background-color: var(--dark-bg);
+}
+
+.page-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Tabs / Filters */
+.reading-list-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.tab-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-btn:hover {
+  background: var(--card-hover);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.tab-btn.active {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+  font-weight: 700;
+}
+
+/* Books Grid */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .books-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .books-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Premium Book Card Synchronized */
+.book-card {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+  border-color: var(--primary-blue);
+}
+
+.book-cover-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 140%;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  );
+  background-color: var(--darker-bg);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.book-cover {
+  position: absolute;
+  top: 10%;
+  left: 17.5%;
+  width: 65%;
+  height: 80%;
+  object-fit: cover;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover .book-cover {
+  transform: scale(1.05) translateY(-5px);
+}
+
+.book-info {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.book-category {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm);
+  align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.book-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-author {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  font-weight: 500;
+}
+
+.book-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Primary Action */
+.reading-list-primary-action {
+  margin-top: auto;
+  margin-bottom: var(--spacing-md);
+}
+
+.btn-read-full {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px;
+  background: var(--primary-blue);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-read-full:hover {
+  background: var(--primary-blue-hover);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Secondary Actions Box */
+.reading-list-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid #f1f5f9;
+}
+
+.reading-list-actions button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reading-list-actions button i {
+  transition: all 0.3s ease;
+}
+
+.reading-list-actions button:hover {
+  background: #f1f5f9;
+  color: var(--primary-blue);
+  transform: scale(1.1);
+}
+
+.btn-favorite.active i {
+  animation: heartPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  color: #ef4444;
+}
+
+.btn-favorite:not(.active) i {
+  color: #94a3b8;
+}
+
+.btn-favorite:not(.active):hover i {
+  animation: heartBeat 1.5s infinite;
+  color: #ef4444;
+  opacity: 0.8;
+}
+
+.btn-read-status.active i {
+  color: #10b981 !important;
+  animation: checkPop 0.4s ease-out;
+}
+
+.btn-read-status:not(.active) i {
+  color: #94a3b8;
+}
+
+.btn-read-status:hover i {
+  color: #10b981;
+  transform: scale(1.15);
+}
+
+.btn-offline.cached i {
+  color: #38bdf8;
+  animation: cloudPulse 2s infinite ease-in-out;
+}
+
+.btn-offline:hover i {
+  color: #38bdf8;
+  transform: translateY(-2px);
+}
+
+.btn-remove:hover i {
+  color: #ef4444 !important;
+  transform: rotate(15deg) scale(1.2);
+}
+
+/* Animations */
+@keyframes heartPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.15);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cloudPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Offline Badge Overlay */
+.offline-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: white;
+  z-index: 5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Overrides for Reading List */
+html[data-theme="dark"] .book-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+html[data-theme="dark"] .book-cover-wrapper {
+  background-color: var(--darker-bg);
+}
+
+html[data-theme="dark"] .tab-btn {
+  background-color: var(--darker-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+html[data-theme="dark"] .tab-btn:hover {
+  background-color: var(--card-hover);
+  color: var(--text-primary);
+  border-color: rgba(59, 130, 246, 0.5);
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .tab-btn.active {
+  background: rgba(59, 130, 246, 0.9);
+  color: rgba(255, 255, 255, 1);
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .reading-list-actions {
+  border-top-color: var(--border-color);
+}
+
+html[data-theme="dark"] .reading-list-actions button {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .reading-list-actions button:hover {
+  background: var(--darker-bg);
+  color: var(--primary-blue);
+}
+
+html[data-theme="dark"] .btn-favorite.active i {
+  color: #ef4444;
+}
+
+html[data-theme="dark"] .btn-read-status.active i {
+  color: #10b981 !important;
+}
+
+/* ===========================
+   Offline Mode Indicator
+   =========================== */
+
+/* Offline banner */
+body.offline-mode::before {
+  content: "⚠️ Mode Offline - Perubahan akan disinkronkan saat online";
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Dim cards slightly when offline */
+body.offline-mode .book-card {
+  opacity: 0.9;
+}
+
+/* Offline icon indicator */
+body.offline-mode .reading-list-actions::after {
+  content: "📡";
+  position: absolute;
+  top: -30px;
+  right: 10px;
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+/* Offline indicator alert */
+.offline-indicator {
+  margin-bottom: var(--spacing-lg);
+  border-left: 4px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: #f59e0b;
+  animation: slideInDown 0.5s ease-out;
+}
+
+.offline-indicator i {
+  color: #f59e0b;
+  margin-right: var(--spacing-sm);
+}
+
+/* Offline message */
+.offline-message {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  margin: var(--spacing-2xl) 0;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.offline-message .offline-icon {
+  opacity: 0.6;
+}
+
+.offline-message h3 {
+  font-weight: 700;
+  margin-bottom: var(--spacing-md);
+}
+
+.offline-message p {
+  line-height: 1.6;
+}
+
+.offline-message .btn {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.offline-message .btn:hover {
+  background: var(--primary-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+/* Cached book indicator */
+.book-card.is-offline::before {
+  content: "📱";
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(56, 189, 248, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.3);
+  animation: bounceIn 0.5s ease-out;
+}
+
+/* Enhanced offline button states */
+.btn-offline.cached {
+  background: rgba(56, 189, 248, 0.1);
+  color: #0ea5e9;
+  border-radius: 50%;
+}
+
+.btn-offline.cached:hover {
+  background: rgba(56, 189, 248, 0.2);
+  transform: scale(1.1) translateY(-2px);
+}
+
+.btn-offline:not(.cached):hover {
+  background: rgba(156, 163, 175, 0.1);
+  color: #6b7280;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+}
+
+/* Dark mode overrides for offline styles */
+html[data-theme="dark"] .offline-message {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+html[data-theme="dark"] .offline-indicator {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+}
