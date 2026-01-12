@@ -73,11 +73,11 @@
             <!-- Secondary Actions -->
             <div class="reading-list-actions">
                 <button class="btn-read-status @(item.IsRead ? "active" : "")" onclick="toggleRead(@item.Id, event)" title="@(item.IsRead ? "Tandai Belum Dibaca" : "Tandai Sudah Dibaca")">
-                    <i class="fas fa-check-circle"></i>
+                    <i class="@(item.IsRead ? "fas fa-check-circle" : "far fa-circle")"></i>
                 </button>
 
                 <button class="btn-favorite @(item.IsFavorite ? "active" : "")" onclick="toggleFavorite(@item.Id, event)" title="@(item.IsFavorite ? "Favorit" : "Tambah ke Favorit")">
-                    <i class="fas fa-heart"></i>
+                    <i class="@(item.IsFavorite ? "fas fa-heart" : "far fa-heart")"></i>
                 </button>
                 
                 <button class="btn-offline" onclick="toggleOffline(@item.BookId, event)" title="Offline" id="offline-btn-@item.BookId">
@@ -106,24 +106,4 @@
 
 @section Scripts {
     <script src="~/js/features/reading-list.js"></script>
-    <script>
-        // Ensure fresh data on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Clear any cached reading list data when page loads
-            if (typeof CacheManager !== 'undefined') {
-                CacheManager.clearReadingListCache();
-            }
-            
-            // Add cache-busting headers for any AJAX requests from this page
-            if (typeof $ !== 'undefined') {
-                $.ajaxSetup({
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-                        xhr.setRequestHeader('Pragma', 'no-cache');
-                        xhr.setRequestHeader('Expires', '0');
-                    }
-                });
-            }
-        });
-    </script>
 }
