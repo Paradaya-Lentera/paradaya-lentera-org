@@ -1,6 +1,7 @@
 /**
- * Font Awesome Fallback Handler (Improved)
- * Detects if Font Awesome CDN fails and applies a robust CSS-based fallback.
+ * Font Awesome Fallback Handler (Local Primary)
+ * Uses local FontAwesome as primary source with CSS-based fallback
+ * for maximum consistency between development and deployment.
  */
 
 (function () {
@@ -36,38 +37,25 @@
     }
   }
 
-  function applyFallback() {
+  function applyCSSFallback() {
     if (fallbackApplied) return;
-
-    console.log(
-      "Font Awesome CDN failed, applying high-fidelity CSS fallback..."
-    );
+    
+    console.log("Local FontAwesome failed, applying CSS-based fallback...");
     fallbackApplied = true;
-
-    // Add class to body to trigger CSS fallbacks in fontawesome-fallback.css
     document.body.classList.add("fontawesome-fallback");
   }
 
   // Initial check
   function init() {
-    // 1. Listen for network errors on link tags
-    const links = document.querySelectorAll('link[rel="stylesheet"]');
-    links.forEach((link) => {
-      if (
-        link.href.includes("font-awesome") ||
-        link.href.includes("fontawesome")
-      ) {
-        link.addEventListener("error", applyFallback);
-      }
-    });
-
-    // 2. Performance check (sometimes it fails silently)
+    // Check if local FontAwesome loaded properly
     window.addEventListener("load", () => {
       setTimeout(() => {
         if (!isFontAwesomeLoaded()) {
-          applyFallback();
+          applyCSSFallback();
+        } else {
+          console.log("Local FontAwesome loaded successfully");
         }
-      }, 1500);
+      }, 1000);
     });
   }
 
@@ -79,5 +67,5 @@
 
   // Export for manual check if needed
   window.checkFontAwesome = isFontAwesomeLoaded;
-  window.triggerFontAwesomeFallback = applyFallback;
+  window.triggerCSSFallback = applyCSSFallback;
 })();

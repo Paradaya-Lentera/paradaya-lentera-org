@@ -326,8 +326,19 @@ function removeFromReadingList(readinglistId, event) {
       success: function (response) {
         if (response.success) {
           removeCardAnimation(event.target);
+          // Show success notification
+          if (typeof showInfoNotification === 'function') {
+            showInfoNotification("Buku telah dihapus dari daftar bacaan");
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification("Buku telah dihapus dari daftar bacaan", "info");
+          }
         } else {
-          showAlert("Gagal menghapus dari reading list", "warning");
+          // Show error notification
+          if (typeof showErrorNotification === 'function') {
+            showErrorNotification("Gagal menghapus dari reading list");
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification("Gagal menghapus dari reading list", "danger");
+          }
         }
       },
       error: handleAjaxError,
@@ -360,8 +371,20 @@ function toggleFavorite(readinglistId, event) {
       success: function (response) {
         if (response.success) {
           updateFavoriteUI(btn, icon, card, response.isFavorite);
+          // Show notification
+          const message = response.isFavorite ? "Ditambahkan ke favorit" : "Dihapus dari favorit";
+          if (typeof showInfoNotification === 'function') {
+            showInfoNotification(message);
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification(message, "info");
+          }
         } else {
-          showAlert("Gagal mengubah status favorit", "warning");
+          // Show error notification
+          if (typeof showErrorNotification === 'function') {
+            showErrorNotification("Gagal mengubah status favorit");
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification("Gagal mengubah status favorit", "danger");
+          }
         }
       },
       error: handleAjaxError,
@@ -397,8 +420,20 @@ function toggleRead(readinglistId, event) {
             "data-read",
             response.isRead.toString().toLowerCase()
           );
+          // Show notification
+          const message = response.isRead ? "Ditandai sudah dibaca" : "Ditandai belum dibaca";
+          if (typeof showSuccessNotification === 'function') {
+            showSuccessNotification(message);
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification(message, "success");
+          }
         } else {
-          showAlert("Gagal mengubah status baca", "warning");
+          // Show error notification
+          if (typeof showErrorNotification === 'function') {
+            showErrorNotification("Gagal mengubah status baca");
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification("Gagal mengubah status baca", "danger");
+          }
         }
       },
       error: handleAjaxError,

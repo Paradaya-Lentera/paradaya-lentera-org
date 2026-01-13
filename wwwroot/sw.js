@@ -1,8 +1,5 @@
-const CACHE_NAME = "lentera-offline-v6";
+const CACHE_NAME = "lentera-offline-v7";
 const STATIC_ASSETS = [
-  "/",
-  "/Page/ReadingList",
-
   // CSS
   "/css/fontawesome-fallback.css",
   "/css/pages/reading-list.css",
@@ -30,8 +27,10 @@ const STATIC_ASSETS = [
   // CDN
   "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+  
+  // Local FontAwesome (for consistency)
+  "/lib/fontawesome/css/all.min.css",
 ];
 
 self.addEventListener("install", (event) => {
@@ -75,6 +74,27 @@ self.addEventListener("message", (event) => {
     });
   }
 
+  if (event.data && event.data.type === "CLEAR_PAGE_CACHE") {
+    caches.open(CACHE_NAME).then((cache) => {
+      cache.keys().then((keys) => {
+        keys.forEach((request) => {
+          const url = new URL(request.url);
+          // Clear logical pages but keep static assets
+          // We can check if it's a page by looking at the pathname
+          const isStatic =
+            url.pathname.match(
+              /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webm|mp4)$/
+            ) || url.pathname.includes("/lib/");
+
+          if (!isStatic) {
+            cache.delete(request);
+          }
+        });
+      });
+      console.log("Page cache cleared for auth change");
+    });
+  }
+
   if (event.data && event.data.type === "FORCE_CACHE_UPDATE") {
     // Force update cache with fresh data
     const url = event.data.url;
@@ -104,6 +124,7 @@ self.addEventListener("fetch", (event) => {
 
   // Special handling for reading list endpoints - Network First with Cache Fallback
   if (
+    url.pathname === "/" ||
     url.pathname === "/Page/GetReadingListData" ||
     url.pathname === "/Page/ReadingList"
   ) {

@@ -85,6 +85,24 @@ class CacheManager {
   }
 
   /**
+   * Notify service worker to clear all HTML page caches (for auth changes)
+   */
+  static async clearPageCache() {
+    if (!navigator.onLine) return;
+
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      try {
+        navigator.serviceWorker.controller.postMessage({
+          type: "CLEAR_PAGE_CACHE",
+        });
+        console.log("Service worker notified to clear page cache");
+      } catch (error) {
+        console.error("Failed to notify service worker:", error);
+      }
+    }
+  }
+
+  /**
    * Force update cache with fresh data (only when online)
    */
   static async forceUpdateCache(url) {

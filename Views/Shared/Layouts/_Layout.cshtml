@@ -7,12 +7,12 @@
     <meta name="description"
         content="Lentera - Temukan dan kelola koleksi buku favorit Anda. Optimized for Offline Usage.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
-          crossorigin="anonymous" 
-          referrerpolicy="no-referrer"
-          onerror="console.warn('Font Awesome CDN failed'); document.body.classList.add('fontawesome-fallback');">
+    <!-- Use Local FontAwesome as primary (for consistency) -->
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" asp-append-version="true" />
+    <!-- CSS-based fallback for critical icons -->
     <link rel="stylesheet" href="~/css/fontawesome-fallback.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/pages/lentera.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/sweetalert/dist/sweetalert2.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -41,8 +41,21 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/@@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
+    <!-- Load SweetAlert2 first -->
+    <script src="~/lib/sweetalert/dist/sweetalert2.all.min.js" asp-append-version="true"></script>
+    <script>
+        // Verify SweetAlert2 is loaded
+        if (typeof Swal === 'undefined') {
+            console.error('SweetAlert2 failed to load!');
+        } else {
+            console.log('SweetAlert2 loaded successfully');
+        }
+    </script>
+    
     <!-- Core utilities -->
     <script src="~/js/core/alert.js" asp-append-version="true"></script>
+    <script src="~/js/core/bootstrap-notifications.js" asp-append-version="true"></script>
     <script src="~/js/core/db.js" asp-append-version="true"></script>
     <script src="~/js/core/image.js" asp-append-version="true"></script>
     
@@ -69,6 +82,38 @@
             console.warn('Could not retrieve anti-forgery token:', e);
             window.antiForgeryToken = '';
         }
+
+        // Global notification handler for TempData
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit to ensure all scripts are loaded
+            setTimeout(() => {
+                const messages = {
+                    success: @Html.Raw(Json.Serialize(TempData["SuccessMessage"])),
+                    error: @Html.Raw(Json.Serialize(TempData["ErrorMessage"])),
+                    info: @Html.Raw(Json.Serialize(TempData["InfoMessage"])),
+                    warning: @Html.Raw(Json.Serialize(TempData["WarningMessage"]))
+                };
+
+                // Use Bootstrap notifications if available, fallback to SweetAlert
+                if (typeof window.showBootstrapNotification === 'function') {
+                    if (messages.success) window.showSuccessNotification(messages.success);
+                    if (messages.error) window.showErrorNotification(messages.error);
+                    if (messages.info) window.showInfoNotification(messages.info);
+                    if (messages.warning) window.showWarningNotification(messages.warning);
+                } else if (typeof window.showAlert === 'function') {
+                    if (messages.success) window.showAlert(messages.success, 'success');
+                    if (messages.error) window.showAlert(messages.error, 'error');
+                    if (messages.info) window.showAlert(messages.info, 'info');
+                    if (messages.warning) window.showAlert(messages.warning, 'warning');
+                } else {
+                    console.warn('No notification system available, falling back to console log');
+                    if (messages.success) console.log('Success:', messages.success);
+                    if (messages.error) console.log('Error:', messages.error);
+                    if (messages.info) console.log('Info:', messages.info);
+                    if (messages.warning) console.log('Warning:', messages.warning);
+                }
+            }, 200); // Increased delay to ensure bootstrap-notifications is loaded
+        });
     </script>
     
     <!-- Cache Manager -->
@@ -80,7 +125,21 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registered', reg))
+                    .then(reg => {
+                        console.log('Service Worker registered', reg);
+                        
+                        // Detect Auth Change to clear stale page cache
+                        const currentUserId = '@(User.Identity?.IsAuthenticated == true ? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : "guest")';
+                        const lastUserId = localStorage.getItem('last_user_id');
+                        
+                        if (lastUserId && lastUserId !== currentUserId) {
+                            console.log('Auth state changed, clearing page cache...');
+                            if (window.CacheManager) {
+                                window.CacheManager.clearPageCache();
+                            }
+                        }
+                        localStorage.setItem('last_user_id', currentUserId);
+                    })
                     .catch(err => console.log('Service Worker registration failed', err));
             });
         }
