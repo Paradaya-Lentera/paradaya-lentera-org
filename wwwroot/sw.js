@@ -28,6 +28,7 @@ const STATIC_ASSETS = [
   "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js",
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css",
   
   // Local FontAwesome (for consistency)
   "/lib/fontawesome/css/all.min.css",
@@ -187,7 +188,7 @@ self.addEventListener("fetch", (event) => {
                       </div>
                       <div class="offline-message text-center py-5">
                         <div class="offline-icon mb-3">
-                          <i class="fas fa-wifi-slash fa-3x text-muted"></i>
+                          <i class="bi bi-wifi-off fa-3x text-muted"></i>
                         </div>
                         <h3 class="text-muted">Tidak Ada Koneksi Internet</h3>
                         <p class="text-muted mb-4">
@@ -195,7 +196,7 @@ self.addEventListener("fetch", (event) => {
                           Silakan periksa koneksi internet Anda dan coba lagi.
                         </p>
                         <button class="btn btn-primary" onclick="window.location.reload()">
-                          <i class="fas fa-refresh"></i> Coba Lagi
+                          <i class="bi bi-arrow-clockwise"></i> Coba Lagi
                         </button>
                       </div>
                     </div>

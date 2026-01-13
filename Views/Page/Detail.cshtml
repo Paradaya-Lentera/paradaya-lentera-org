@@ -28,7 +28,7 @@
             <div class="detail-cover-wrapper">
                 <div class="detail-cover" id="bookCover" style="background: url('@Model.CoverUrl'), linear-gradient(135deg, #667eea, #764ba2);">
                     @if (string.IsNullOrEmpty(Model.CoverUrl)) {
-                        <i class="fas fa-book" style="font-size: 6rem; opacity: 0.3; color: white;"></i>
+                        <i class="bi bi-book" style="font-size: 6rem; opacity: 0.3; color: white;"></i>
                     }
                 </div>
             </div>
@@ -44,7 +44,7 @@
                 <button id="readingListBtn"
                         class="action-btn btn-remove"
                         onclick="toggleReadingList(@Model.LocalBookId.Value)">
-                    <i class="fas fa-bookmark"></i> Hapus dari Daftar
+                    <i class="bi bi-bookmark-fill"></i> Hapus dari Daftar
                 </button>
             }
             else
@@ -53,7 +53,7 @@
                 <button id="readingListBtn"
                         class="action-btn btn-add"
                         onclick="toggleReadingList(@Model.LocalBookId.Value)">
-                    <i class="fas fa-bookmark"></i> Simpan Ke Daftar
+                    <i class="bi bi-bookmark"></i> Simpan Ke Daftar
                 </button>
             }
         }
@@ -68,7 +68,7 @@
                 <input type="hidden" name="isbn" value="@Model.Isbn" />
 
                 <button type="submit" class="action-btn btn-add w-100">
-                    <i class="fas fa-bookmark"></i> Simpan Ke Daftar
+                    <i class="bi bi-bookmark"></i> Simpan Ke Daftar
                 </button>
             </form>
         }
@@ -80,7 +80,7 @@
            asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString"
            class="action-btn btn-add"
            style="text-decoration:none;">
-            <i class="fas fa-lock"></i> Login untuk Menambahkan
+            <i class="bi bi-lock"></i> Login untuk Menambahkan
         </a>
     }
                 
@@ -94,20 +94,20 @@
                            asp-route-olkey="@Model.OlKey" 
                            class="btn-secondary btn-preview"
                            target="_blank">
-                            <i class="fas fa-book-open"></i> Baca Sekarang
+                            <i class="bi bi-book-open"></i> Baca Sekarang
                         </a>
                     }
                     else
                     {
                         <a asp-controller="Auth" asp-action="Login" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" class="btn-secondary btn-preview">
-                            <i class="fas fa-lock"></i> Login untuk Baca
+                            <i class="bi bi-lock"></i> Login untuk Baca
                         </a>
                     }
                 }
                 else
                 {
                     <button class="btn-secondary btn-preview" disabled title="@(Model.IsLocal ? "Baca online tidak tersedia untuk buku lokal" : "Baca online tidak tersedia untuk buku ini")">
-                        <i class="fas fa-book-open"></i> Baca Sekarang
+                        <i class="bi bi-book-open"></i> Baca Sekarang
                     </button>
                 }
             </div>
@@ -117,7 +117,7 @@
         <div class="detail-info-section">
             <div class="detail-header">
                 <div class="detail-rating">
-                    <span class="rating-stars"><i class="fas fa-star" style="color: var(--accent-yellow);"></i></span>
+                    <span class="rating-stars"><i class="bi bi-star-fill" style="color: var(--accent-yellow);"></i></span>
                     <span class="rating-number dynamic-data" id="bookRating">
                         @if (Model.Rating.HasValue)
                         {
@@ -283,10 +283,10 @@
                 const data = await response.json();
                 if (data.success) {
                     if (data.isFavorite) {
-                        btn.innerHTML = '<i class="fas fa-star"></i> Favorit';
+                        btn.innerHTML = '<i class="bi bi-star-fill"></i> Favorit';
                         // Add class for visual feedback if needed
                     } else {
-                        btn.innerHTML = '<i class="fas fa-star"></i> Tambah Favorit';
+                        btn.innerHTML = '<i class="bi bi-star"></i> Tambah Favorit';
                     }
                 }
             } catch (error) {
@@ -311,9 +311,9 @@
                 const data = await response.json();
                 if (data.success) {
                     if (data.isRead) {
-                        btn.innerHTML = '<i class="fas fa-check"></i> Selesai Dibaca';
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Selesai Dibaca';
                     } else {
-                        btn.innerHTML = '<i class="fas fa-check"></i> Belum Dibaca';
+                        btn.innerHTML = '<i class="bi bi-circle"></i> Belum Dibaca';
                     }
                 }
             } catch (error) {
@@ -367,11 +367,11 @@
             const btn = document.getElementById('readingListBtn');
             if (btn) {
                 if (isInReadingList) {
-                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Hapus dari Daftar';
+                    btn.innerHTML = '<i class="bi bi-bookmark-fill"></i> Hapus dari Daftar';
                     btn.classList.remove('btn-add');
                     btn.classList.add('btn-remove');
                 } else {
-                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Simpan Ke Daftar';
+                    btn.innerHTML = '<i class="bi bi-bookmark"></i> Simpan Ke Daftar';
                     btn.classList.remove('btn-remove');
                     btn.classList.add('btn-add');
                 }

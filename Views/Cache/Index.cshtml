@@ -40,7 +40,7 @@
                     <form asp-action="ClearSearchCache" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to clear search cache?')">
-                            <i class="fas fa-trash"></i> Clear Search Cache
+                            <i class="bi bi-trash"></i> Clear Search Cache
                         </button>
                     </form>
                 </div>
@@ -59,7 +59,7 @@
                     <form asp-action="ClearTopSavedBooksCache" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to clear top saved books cache?')">
-                            <i class="fas fa-trash"></i> Clear Top Books Cache
+                            <i class="bi bi-trash"></i> Clear Top Books Cache
                         </button>
                     </form>
                 </div>
@@ -78,7 +78,7 @@
                         <p>Loading cache statistics...</p>
                     </div>
                     <button id="refresh-stats" class="btn btn-info">
-                        <i class="fas fa-refresh"></i> Refresh Stats
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Stats
                     </button>
                 </div>
             </div>
@@ -98,7 +98,7 @@
                     <form asp-action="ClearAllCache" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear ALL cache? This action cannot be undone.')">
-                            <i class="fas fa-exclamation-triangle"></i> Clear All Cache
+                            <i class="bi bi-exclamation-triangle"></i> Clear All Cache
                         </button>
                     </form>
                 </div>

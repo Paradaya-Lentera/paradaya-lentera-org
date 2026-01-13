@@ -12,8 +12,9 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <a asp-controller="Page" asp-action="ReadingList"
-                        class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Page" && ViewContext.RouteData.Values["Action"]?.ToString() == "ReadingList" ? "active" : "")">
-                        <i class="fas fa-bookmark nav-icon"></i>
+                        class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Page" && ViewContext.RouteData.Values["Action"]?.ToString() == "ReadingList" ? "active" : "")"
+                        style="font-weight: 600;">
+                        <i class="bi bi-bookmark nav-icon"></i>
                         <span>My Reading List</span>
                     </a>
                 }
@@ -22,8 +23,8 @@
             <div class="navbar-actions">
                 <!-- Theme Toggle -->
                 <button id="themeToggle" class="theme-toggle" aria-label="Switch Theme" type="button">
-                    <i class="fas fa-sun theme-icon switch-light"></i>
-                    <i class="fas fa-moon theme-icon switch-dark" style="display: none;"></i>
+                    <i class="bi bi-sun theme-icon switch-light"></i>
+                    <i class="bi bi-moon theme-icon switch-dark" style="display: none;"></i>
                 </button>
 
                 <!-- Auth Section -->
@@ -31,11 +32,11 @@
                 {
                     <div class="auth-buttons">
                         <a asp-controller="Auth" asp-action="Login" class="btn-login">
-                            <i class="fas fa-sign-in-alt btn-icon"></i>
+                            <i class="bi bi-box-arrow-in-right btn-icon"></i>
                             <span>Login</span>
                         </a>
                         <a asp-controller="Auth" asp-action="Register" class="btn-register">
-                            <i class="fas fa-user-plus btn-icon"></i>
+                            <i class="bi bi-person-plus btn-icon"></i>
                             <span>Register</span>
                         </a>
                     </div>
@@ -54,16 +55,16 @@
                         }
                         <div class="user-avatar" id="userAvatar" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
                             <div class="avatar-circle">
-                                <i class="fas fa-user"></i>
+                                <i class="bi bi-person"></i>
                             </div>
-                            <span class="user-name">@userName</span>
-                            <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            <span class="user-name" style="font-weight: 600; font-size:1.1rem">@userName</span>
+                            <i class="bi bi-chevron-down dropdown-arrow"></i>
                         </div>
                         <div class="dropdown-menu" id="userDropdown" role="menu">
                             <form asp-controller="Auth" asp-action="Logout" method="post" class="logout-form">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="dropdown-item" role="menuitem">
-                                    <i class="fas fa-sign-out-alt"></i>
+                                    <i class="bi bi-box-arrow-right"></i>
                                     <span>Logout</span>
                                 </button>
                             </form>

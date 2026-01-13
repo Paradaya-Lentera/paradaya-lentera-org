@@ -13,7 +13,7 @@
     try {
       // Create a test element to see if Font Awesome styles are applied
       const testElement = document.createElement("i");
-      testElement.className = "fas fa-heart";
+      testElement.className = "bi bi-heart";
       testElement.style.cssText =
         "position:absolute;left:-9999px;font-size:16px;visibility:hidden";
 
