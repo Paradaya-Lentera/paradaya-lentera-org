@@ -296,12 +296,6 @@ function updateReadingListUI(books) {
                       item.isFavorite ? "bi bi-heart-fill" : "bi bi-heart"
                     }"></i>
                 </button>
-                
-                <button class="btn-offline" onclick="toggleOffline(${
-                  item.bookId
-                }, event)" title="Offline" id="offline-btn-${item.bookId}">
-                    <i class="bi bi-cloud-arrow-down"></i>
-                </button>
 
                 <button class="btn-remove" onclick="removeFromReadingList(${
                   item.id
@@ -547,157 +541,7 @@ function handleAjaxError(xhr) {
 }
 
 // ==================== Offline Support ====================
-
-async function toggleOffline(bookId, event) {
-  event.stopPropagation();
-
-  const btn = event.target.closest(".btn-offline");
-  const icon = btn.querySelector("i");
-  const card = btn.closest(".book-card");
-
-  if (!("caches" in window)) {
-    showAlert("Browser tidak mendukung offline mode", "warning");
-    return;
-  }
-
-  try {
-    const isCached = await checkIsCached(bookId);
-
-    if (isCached) {
-      // Remove from cache
-      await removeFromCache(bookId);
-      btn.classList.remove("cached");
-      btn.title = "Simpan untuk offline";
-      icon.className = "bi bi-cloud-arrow-down";
-      card.classList.remove("is-offline");
-      showAlert("Buku dihapus dari offline storage", "info");
-    } else {
-      // Add to cache
-      btn.disabled = true;
-      btn.title = "Menyimpan...";
-      icon.className = "bi bi-arrow-repeat spin";
-
-      const success = await cacheBookForOffline(bookId);
-
-      if (success) {
-        btn.classList.add("cached");
-        btn.title = "Tersedia offline";
-        icon.className = "bi bi-cloud-check";
-        card.classList.add("is-offline");
-        showAlert("Buku disimpan untuk offline", "success");
-      } else {
-        btn.title = "Gagal menyimpan";
-        icon.className = "bi bi-exclamation-triangle";
-        showAlert("Gagal menyimpan buku untuk offline", "danger");
-      }
-
-      btn.disabled = false;
-    }
-  } catch (error) {
-    console.error("Error toggling offline:", error);
-    showAlert("Terjadi kesalahan saat mengatur offline mode", "danger");
-    btn.disabled = false;
-  }
-}
-
-async function checkIsCached(bookId) {
-  if (!("caches" in window)) return false;
-
-  try {
-    const cache = await caches.open("lentera-offline-v8");
-    const bookUrl = `/Page/Read?id=${bookId}`;
-    const response = await cache.match(bookUrl);
-    return !!response;
-  } catch (error) {
-    console.error("Error checking cache:", error);
-    return false;
-  }
-}
-
-async function cacheBookForOffline(bookId) {
-  if (!navigator.onLine) {
-    showAlert("Tidak dapat menyimpan buku saat offline", "warning");
-    return false;
-  }
-
-  try {
-    const cache = await caches.open("lentera-offline-v8");
-
-    // URLs to cache for this book
-    const urlsToCache = [
-      `/Page/Read?id=${bookId}`,
-      `/Page/Detail?id=${bookId}`,
-      `/Page/GetBookContent?id=${bookId}`,
-      `/Page/GetBookData?id=${bookId}`,
-    ];
-
-    // Cache each URL
-    for (const url of urlsToCache) {
-      try {
-        const response = await fetch(url);
-        if (response.ok) {
-          await cache.put(url, response.clone());
-        }
-      } catch (error) {
-        console.warn(`Failed to cache ${url}:`, error);
-      }
-    }
-
-    // Also try to cache book thumbnail if available
-    const card = document.querySelector(`[data-book-id="${bookId}"]`);
-    if (card) {
-      const img = card.querySelector(".book-cover");
-      if (img && img.src && !img.src.startsWith("data:")) {
-        try {
-          const response = await fetch(img.src);
-          if (response.ok) {
-            await cache.put(img.src, response.clone());
-          }
-        } catch (error) {
-          console.warn("Failed to cache book thumbnail:", error);
-        }
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error caching book:", error);
-    return false;
-  }
-}
-
-async function removeFromCache(bookId) {
-  try {
-    const cache = await caches.open("lentera-offline-v8");
-
-    // URLs to remove from cache
-    const urlsToRemove = [
-      `/Page/Read?id=${bookId}`,
-      `/Page/Detail?id=${bookId}`,
-      `/Page/GetBookContent?id=${bookId}`,
-      `/Page/GetBookData?id=${bookId}`,
-    ];
-
-    // Remove each URL from cache
-    for (const url of urlsToRemove) {
-      await cache.delete(url);
-    }
-
-    // Also remove thumbnail if cached
-    const card = document.querySelector(`[data-book-id="${bookId}"]`);
-    if (card) {
-      const img = card.querySelector(".book-cover");
-      if (img && img.src && !img.src.startsWith("data:")) {
-        await cache.delete(img.src);
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error removing from cache:", error);
-    return false;
-  }
-}
+// Offline download toggle removed per user request
 
 async function queueAction(actionType, createPayload) {
   if (typeof DB === "undefined") return;
@@ -833,23 +677,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   initializeImages(document);
   saveReadingListToDB();
   processActionQueue();
-
-  // Check cached books
-  if ("caches" in window) {
-    const bookCards = document.querySelectorAll(".book-card");
-    for (const card of bookCards) {
-      const onclick = card.getAttribute("onclick");
-      const match = onclick?.match(/viewBookDetail\((\d+)\)/);
-      if (match && typeof checkIsCached !== "undefined") {
-        const isCached = await checkIsCached(match[1]);
-        if (isCached) {
-          const btn = document.getElementById(`offline-btn-${match[1]}`);
-          if (btn) btn.classList.add("cached");
-          card.classList.add("is-offline");
-        }
-      }
-    }
-  }
 });
 
 function initializeImages(container) {
@@ -1164,20 +991,4 @@ document.addEventListener("DOMContentLoaded", async function () {
   window.addEventListener("offline", () => {
     document.body.classList.add("offline-mode");
   });
-
-  // Check cached books
-  if ("caches" in window) {
-    const bookCards = document.querySelectorAll(".book-card");
-    for (const card of bookCards) {
-      const bookId = card.dataset.bookId;
-      if (bookId && typeof checkIsCached !== "undefined") {
-        const isCached = await checkIsCached(bookId);
-        if (isCached) {
-          const btn = document.getElementById(`offline-btn-${bookId}`);
-          if (btn) btn.classList.add("cached");
-          card.classList.add("is-offline");
-        }
-      }
-    }
-  }
 });

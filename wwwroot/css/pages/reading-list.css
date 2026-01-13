@@ -272,16 +272,6 @@ body {
   transform: scale(1.15);
 }
 
-.btn-offline.cached i {
-  color: #38bdf8;
-  animation: cloudPulse 2s infinite ease-in-out;
-}
-
-.btn-offline:hover i {
-  color: #38bdf8;
-  transform: translateY(-2px);
-}
-
 .btn-remove:hover i {
   color: #ef4444 !important;
   transform: rotate(15deg) scale(1.2);
@@ -326,21 +316,6 @@ body {
   100% {
     transform: scale(1);
     opacity: 1;
-  }
-}
-
-@keyframes cloudPulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -516,21 +491,6 @@ body.offline-mode .reading-list-actions::after {
 }
 
 /* Enhanced offline button states */
-.btn-offline.cached {
-  background: rgba(56, 189, 248, 0.1);
-  color: #0ea5e9;
-  border-radius: 50%;
-}
-
-.btn-offline.cached:hover {
-  background: rgba(56, 189, 248, 0.2);
-  transform: scale(1.1) translateY(-2px);
-}
-
-.btn-offline:not(.cached):hover {
-  background: rgba(156, 163, 175, 0.1);
-  color: #6b7280;
-}
 
 @keyframes slideDown {
   from {
@@ -654,12 +614,16 @@ html[data-theme="dark"] .offline-indicator {
 }
 /* Bootstrap Icons spin animation */
 .spin {
-    animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===========================
@@ -695,7 +659,8 @@ html[data-theme="dark"] .offline-indicator {
   opacity: 0.6;
 }
 
-.empty-state, .no-results-state {
+.empty-state,
+.no-results-state {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -703,7 +668,8 @@ html[data-theme="dark"] .offline-indicator {
   margin: var(--spacing-2xl) 0;
 }
 
-.empty-icon i, .no-results-icon i {
+.empty-icon i,
+.no-results-icon i {
   color: var(--text-muted);
   opacity: 0.6;
 }
@@ -713,41 +679,18 @@ body.offline-mode {
   position: relative;
 }
 
-/* Book card offline indicators */
-.book-card.is-offline {
-  position: relative;
-}
-
-.book-card.is-offline::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 12px;
-  height: 12px;
-  background: var(--accent-green);
-  border-radius: 50%;
-  border: 2px solid var(--card-bg);
-  z-index: 2;
-}
-
-.btn-offline.cached {
-  background: var(--accent-green) !important;
-  color: white !important;
-}
-
-.btn-offline.cached i {
-  color: white;
-}
-
 /* Spinning animation for loading */
 .spin {
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive offline indicators */
@@ -756,8 +699,10 @@ body.offline-mode {
     padding: var(--spacing-sm);
     font-size: 0.9rem;
   }
-  
-  .offline-message, .empty-state, .no-results-state {
+
+  .offline-message,
+  .empty-state,
+  .no-results-state {
     padding: var(--spacing-xl);
     margin: var(--spacing-lg) 0;
   }
