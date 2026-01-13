@@ -128,9 +128,8 @@ public class PageController : Controller
     [Authorize]
     public async Task<IActionResult> ReadingList(int page = 1)
     {
-        // Set cache headers that allow caching but ensure revalidation when online
-        Response.Headers.Add("Cache-Control", "max-age=0, must-revalidate");
-        Response.Headers.Add("ETag", $"\"{DateTime.UtcNow.Ticks}\"");
+        // Set cache headers that allow offline caching but ensure fresh data when online
+        Response.Headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=86400";
         
         var userId = User.GetUserId();
         var (items, totalCount) = await _readingListService.GetUserReadingListPagedAsync(userId, page, 9);
@@ -144,9 +143,8 @@ public class PageController : Controller
     [Authorize]
     public async Task<IActionResult> GetReadingListData(int page = 1)
     {
-        // Set cache headers that allow caching but ensure revalidation
-        Response.Headers.Add("Cache-Control", "max-age=0, must-revalidate");
-        Response.Headers.Add("ETag", $"\"{DateTime.UtcNow.Ticks}\"");
+        // Set cache headers that allow offline caching
+        Response.Headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=86400";
         
         var userId = User.GetUserId();
         var (items, totalCount) = await _readingListService.GetUserReadingListPagedAsync(userId, page, 9);

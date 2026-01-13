@@ -136,6 +136,21 @@
             <i class="bi bi-plus"></i> Cari Buku Online
         </button>
     </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state text-center py-5" style="display: none;">
+        <div class="empty-icon mb-3">
+            <i class="bi bi-book fa-3x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Daftar Bacaan Kosong</h3>
+        <p class="text-muted mb-4">
+            Belum ada buku dalam daftar bacaan Anda.<br>
+            Mulai tambahkan buku favorit untuk dibaca nanti.
+        </p>
+        <a asp-controller="Search" asp-action="Index" class="btn btn-primary">
+            <i class="bi bi-search"></i> Cari Buku
+        </a>
+    </div>
 </div>
 
 @section Scripts {
