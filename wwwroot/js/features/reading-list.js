@@ -35,7 +35,7 @@ async function checkAndRefreshReadingList() {
 async function loadOfflineReadingList() {
   try {
     let dataLoaded = false;
-    
+
     // First try to load from IndexedDB (more reliable for structured data)
     if (typeof DB !== "undefined") {
       const cachedItems = await DB.getAll("readingList");
@@ -62,7 +62,7 @@ async function loadOfflineReadingList() {
 
     // Fallback: Try to load from cache if IndexedDB didn't work
     if (!dataLoaded && "caches" in window) {
-      const cache = await caches.open("lentera-offline-v7");
+      const cache = await caches.open("lentera-offline-v8");
       const cachedResponse = await cache.match("/Page/GetReadingListData");
 
       if (cachedResponse) {
@@ -79,15 +79,15 @@ async function loadOfflineReadingList() {
     if (!dataLoaded) {
       const currentGrid = document.querySelector("#readingListGrid");
       const emptyState = document.getElementById("emptyState");
-      
+
       if (currentGrid) {
         currentGrid.style.display = "none";
       }
-      
+
       if (emptyState) {
         emptyState.style.display = "block";
       }
-      
+
       console.log("No cached reading list data available");
     }
   } catch (error) {
@@ -174,7 +174,7 @@ async function refreshReadingListData() {
       if (result.success && result.data) {
         updateReadingListUI(result.data);
         console.log("Reading list refreshed successfully");
-        
+
         // Save to IndexedDB for offline use
         await saveReadingListToDB();
       } else if (result.offline) {
@@ -354,17 +354,23 @@ function removeFromReadingList(readinglistId, event) {
         if (response.success) {
           removeCardAnimation(event.target);
           // Show success notification
-          if (typeof showInfoNotification === 'function') {
+          if (typeof showInfoNotification === "function") {
             showInfoNotification("Buku telah dihapus dari daftar bacaan");
-          } else if (typeof showBootstrapNotification === 'function') {
-            showBootstrapNotification("Buku telah dihapus dari daftar bacaan", "info");
+          } else if (typeof showBootstrapNotification === "function") {
+            showBootstrapNotification(
+              "Buku telah dihapus dari daftar bacaan",
+              "info"
+            );
           }
         } else {
           // Show error notification
-          if (typeof showErrorNotification === 'function') {
+          if (typeof showErrorNotification === "function") {
             showErrorNotification("Gagal menghapus dari reading list");
-          } else if (typeof showBootstrapNotification === 'function') {
-            showBootstrapNotification("Gagal menghapus dari reading list", "danger");
+          } else if (typeof showBootstrapNotification === "function") {
+            showBootstrapNotification(
+              "Gagal menghapus dari reading list",
+              "danger"
+            );
           }
         }
       },
@@ -399,18 +405,23 @@ function toggleFavorite(readinglistId, event) {
         if (response.success) {
           updateFavoriteUI(btn, icon, card, response.isFavorite);
           // Show notification
-          const message = response.isFavorite ? "Ditambahkan ke favorit" : "Dihapus dari favorit";
-          if (typeof showInfoNotification === 'function') {
+          const message = response.isFavorite
+            ? "Ditambahkan ke favorit"
+            : "Dihapus dari favorit";
+          if (typeof showInfoNotification === "function") {
             showInfoNotification(message);
-          } else if (typeof showBootstrapNotification === 'function') {
+          } else if (typeof showBootstrapNotification === "function") {
             showBootstrapNotification(message, "info");
           }
         } else {
           // Show error notification
-          if (typeof showErrorNotification === 'function') {
+          if (typeof showErrorNotification === "function") {
             showErrorNotification("Gagal mengubah status favorit");
-          } else if (typeof showBootstrapNotification === 'function') {
-            showBootstrapNotification("Gagal mengubah status favorit", "danger");
+          } else if (typeof showBootstrapNotification === "function") {
+            showBootstrapNotification(
+              "Gagal mengubah status favorit",
+              "danger"
+            );
           }
         }
       },
@@ -448,17 +459,19 @@ function toggleRead(readinglistId, event) {
             response.isRead.toString().toLowerCase()
           );
           // Show notification
-          const message = response.isRead ? "Ditandai sudah dibaca" : "Ditandai belum dibaca";
-          if (typeof showSuccessNotification === 'function') {
+          const message = response.isRead
+            ? "Ditandai sudah dibaca"
+            : "Ditandai belum dibaca";
+          if (typeof showSuccessNotification === "function") {
             showSuccessNotification(message);
-          } else if (typeof showBootstrapNotification === 'function') {
+          } else if (typeof showBootstrapNotification === "function") {
             showBootstrapNotification(message, "success");
           }
         } else {
           // Show error notification
-          if (typeof showErrorNotification === 'function') {
+          if (typeof showErrorNotification === "function") {
             showErrorNotification("Gagal mengubah status baca");
-          } else if (typeof showBootstrapNotification === 'function') {
+          } else if (typeof showBootstrapNotification === "function") {
             showBootstrapNotification("Gagal mengubah status baca", "danger");
           }
         }
@@ -591,7 +604,7 @@ async function checkIsCached(bookId) {
   if (!("caches" in window)) return false;
 
   try {
-    const cache = await caches.open("lentera-offline-v7");
+    const cache = await caches.open("lentera-offline-v8");
     const bookUrl = `/Page/Read?id=${bookId}`;
     const response = await cache.match(bookUrl);
     return !!response;
@@ -608,7 +621,7 @@ async function cacheBookForOffline(bookId) {
   }
 
   try {
-    const cache = await caches.open("lentera-offline-v7");
+    const cache = await caches.open("lentera-offline-v8");
 
     // URLs to cache for this book
     const urlsToCache = [
@@ -655,7 +668,7 @@ async function cacheBookForOffline(bookId) {
 
 async function removeFromCache(bookId) {
   try {
-    const cache = await caches.open("lentera-offline-v7");
+    const cache = await caches.open("lentera-offline-v8");
 
     // URLs to remove from cache
     const urlsToRemove = [

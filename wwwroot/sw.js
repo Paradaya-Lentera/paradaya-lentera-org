@@ -1,16 +1,18 @@
-const CACHE_NAME = "lentera-offline-v7";
+const CACHE_NAME = "lentera-offline-v8"; // Increment version to force update
 const STATIC_ASSETS = [
   // CSS
   "/css/fontawesome-fallback.css",
   "/css/pages/reading-list.css",
   "/css/pages/lentera.css",
   "/css/pages/read.css",
+  "/css/site.css",
 
   // JS Core
   "/js/core/db.js",
   "/js/core/alert.js",
   "/js/core/image.js",
   "/js/core/cache-manager.js",
+  "/js/core/bootstrap-notifications.js",
 
   // JS Components
   "/js/components/navbar.js",
@@ -29,34 +31,43 @@ const STATIC_ASSETS = [
   "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js",
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
   "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css",
-  
+
   // Local FontAwesome (for consistency)
   "/lib/fontawesome/css/all.min.css",
 ];
 
 self.addEventListener("install", (event) => {
+  console.log("[SW] Installing new service worker...");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("Pre-caching static assets");
-      return cache.addAll(STATIC_ASSETS);
+      console.log("[SW] Pre-caching static assets");
+      return cache.addAll(STATIC_ASSETS).catch((err) => {
+        console.error("[SW] Failed to cache some assets:", err);
+        // Continue even if some assets fail to cache
+      });
     })
   );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
+  console.log("[SW] Activating new service worker...");
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys
           .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+          .map((key) => {
+            console.log("[SW] Deleting old cache:", key);
+            return caches.delete(key);
+          })
       );
     })
   );
   self.clients.claim();
 });
 
+// Single fetch event handler
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -64,98 +75,219 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
-  // Skip external requests (different origin)
-  if (url.origin !== location.origin) return;
+  // Skip cross-origin requests for external APIs (except CDN assets we explicitly cache)
+  const isCachedCDN = STATIC_ASSETS.some((asset) => asset === request.url);
+  if (url.origin !== location.origin && !isCachedCDN) return;
 
-  // Handle reading list data with network-first strategy
-  if (url.pathname === "/Page/GetReadingListData") {
+  // ===== STRATEGY 1: Reading List Page - Network First with Offline Fallback =====
+  if (url.pathname === "/Page/ReadingList") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
-            // Cache the fresh response
+          // Cache the successful response for offline use
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, response.clone());
+              cache.put(request, responseClone);
+              console.log("[SW] Cached ReadingList page");
             });
           }
           return response;
         })
         .catch(() => {
-          // If network fails, try cache
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              console.log("Serving reading list from cache (offline)");
-              return cachedResponse;
-            }
-            // If no cache, return offline response
-            return new Response(
-              JSON.stringify({
-                success: false,
-                error: "Offline - no cached data available",
-                offline: true
-              }),
-              {
-                status: 200,
-                headers: { "Content-Type": "application/json" }
+          // Network failed, try to serve from cache
+          console.log("[SW] Network failed for ReadingList, trying cache...");
+          return caches
+            .match(request, { ignoreSearch: true })
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                console.log(
+                  "[SW] Serving cached ReadingList page (offline mode)"
+                );
+                return cachedResponse;
               }
-            );
-          });
+
+              // No cache available, return basic offline page
+              console.log(
+                "[SW] No cached ReadingList page, returning offline template"
+              );
+              return caches.match("/").then((homeResponse) => {
+                // Try to serve home page as fallback if available
+                if (homeResponse) return homeResponse;
+
+                // Last resort: inline offline page
+                return new Response(generateOfflineReadingListHTML(), {
+                  status: 200,
+                  statusText: "OK (Offline)",
+                  headers: {
+                    "Content-Type": "text/html; charset=utf-8",
+                    "Cache-Control": "no-cache",
+                  },
+                });
+              });
+            });
         })
     );
     return;
   }
 
-  // Handle other page requests with cache-first for static assets, network-first for pages
-  const isStaticAsset = url.pathname.match(
-    /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webm|mp4|ico)$/
-  ) || url.pathname.includes("/lib/");
-
-  if (isStaticAsset) {
-    // Cache-first for static assets
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        return cachedResponse || fetch(request).then((response) => {
-          if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, response.clone());
-            });
-          }
-          return response;
-        });
-      })
-    );
-  } else {
-    // Network-first for pages
+  // ===== STRATEGY 2: Reading List Data API - Network First with Cache Fallback =====
+  if (url.pathname === "/Page/GetReadingListData") {
     event.respondWith(
       fetch(request)
         .then((response) => {
           if (response.ok) {
+            // Cache the fresh data for offline use
+            const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, response.clone());
+              cache.put(request, responseClone);
+              console.log("[SW] Cached reading list data");
             });
           }
           return response;
         })
         .catch(() => {
-          return caches.match(request);
+          // Network failed, try cache
+          console.log(
+            "[SW] Network failed for reading list data, trying cache..."
+          );
+          return caches
+            .match(request, { ignoreSearch: true })
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                console.log("[SW] Serving cached reading list data (offline)");
+                return cachedResponse;
+              }
+
+              // No cache, return empty data
+              console.log("[SW] No cached data, returning empty result");
+              return new Response(
+                JSON.stringify({
+                  success: true,
+                  data: [],
+                  offline: true,
+                  message: "Offline mode - no cached data available",
+                }),
+                {
+                  status: 200,
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache",
+                  },
+                }
+              );
+            });
         })
     );
+    return;
   }
+
+  // ===== STRATEGY 3: Static Assets - Cache First =====
+  const isStaticAsset =
+    url.pathname.match(
+      /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webm|mp4|ico)$/
+    ) ||
+    url.pathname.includes("/lib/") ||
+    STATIC_ASSETS.some(
+      (asset) => url.pathname === new URL(asset, location.origin).pathname
+    );
+
+  if (isStaticAsset || isCachedCDN) {
+    event.respondWith(
+      caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
+        if (cachedResponse) {
+          // console.log("[SW] Serving static asset from cache:", url.pathname);
+          return cachedResponse;
+        }
+
+        // Not in cache, fetch from network
+        return fetch(request)
+          .then((response) => {
+            if (
+              response &&
+              (response.status === 200 || response.type === "opaque")
+            ) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone);
+                // console.log("[SW] Cached new static asset:", url.pathname);
+              });
+            }
+            return response;
+          })
+          .catch((err) => {
+            console.error(
+              "[SW] Failed to fetch static asset:",
+              url.pathname,
+              err
+            );
+            // Return a placeholder or throw error
+            throw err;
+          });
+      })
+    );
+    return;
+  }
+
+  // ===== STRATEGY 4: Other Pages - Network First with Cache Fallback =====
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache successful responses
+        if (response && response.status === 200 && response.type === "basic") {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+            console.log("[SW] Cached page:", url.pathname);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches
+          .match(request, { ignoreSearch: true })
+          .then((cachedResponse) => {
+            if (cachedResponse) {
+              console.log("[SW] Serving page from cache:", url.pathname);
+              return cachedResponse;
+            }
+
+            // For navigation requests, try ReadingList or Home as fallback
+            if (request.mode === "navigate") {
+              return caches
+                .match("/Page/ReadingList")
+                .then((readingListResponse) => {
+                  if (readingListResponse) return readingListResponse;
+                  return caches.match("/");
+                });
+            }
+
+            throw new Error("No cache available for: " + url.pathname);
+          });
+      })
+  );
 });
+
+// Message handler for cache management
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "CLEAR_READING_LIST_CACHE") {
-    // Clear reading list related caches only when there's an update
+    // Clear reading list related caches when data is updated
     caches.open(CACHE_NAME).then((cache) => {
       cache.delete("/Page/GetReadingListData");
+      cache.delete("/Page/ReadingList");
       // Also clear any requests with query parameters
       cache.keys().then((keys) => {
         keys.forEach((request) => {
-          if (request.url.includes("/Page/GetReadingListData")) {
+          if (
+            request.url.includes("/Page/GetReadingListData") ||
+            request.url.includes("/Page/ReadingList")
+          ) {
             cache.delete(request);
           }
         });
       });
-      console.log("Reading list cache cleared due to data update");
+      console.log("[SW] Reading list cache cleared due to data update");
     });
   }
 
@@ -164,8 +296,7 @@ self.addEventListener("message", (event) => {
       cache.keys().then((keys) => {
         keys.forEach((request) => {
           const url = new URL(request.url);
-          // Clear logical pages but keep static assets
-          // We can check if it's a page by looking at the pathname
+          // Clear pages but keep static assets
           const isStatic =
             url.pathname.match(
               /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webm|mp4)$/
@@ -176,7 +307,7 @@ self.addEventListener("message", (event) => {
           }
         });
       });
-      console.log("Page cache cleared for auth change");
+      console.log("[SW] Page cache cleared for auth change");
     });
   }
 
@@ -187,186 +318,101 @@ self.addEventListener("message", (event) => {
       fetch(url)
         .then((response) => {
           if (response.ok || response.type === "opaque") {
-            // Added opaque check for successful caching
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(url, response.clone());
-              console.log("Cache updated with fresh data for:", url);
+              console.log("[SW] Cache updated with fresh data for:", url);
             });
           }
         })
         .catch((err) => {
-          console.log("Failed to update cache:", err);
+          console.log("[SW] Failed to update cache:", err);
         });
     }
   }
 });
 
-self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-
-  // Skip non-GET requests
-  if (event.request.method !== "GET") return;
-
-  // Special handling for reading list endpoints - Network First with Cache Fallback
-  if (
-    url.pathname === "/" ||
-    url.pathname === "/Page/GetReadingListData" ||
-    url.pathname === "/Page/ReadingList"
-  ) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
-          // If network succeeds, cache the fresh response
-          if (
-            networkResponse &&
-            (networkResponse.status === 200 ||
-              networkResponse.type === "opaque")
-          ) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return networkResponse;
-        })
-        .catch(() => {
-          // If network fails (offline), fallback to cache
-          console.log("Network failed for reading list, using cache fallback");
-          return caches
-            .match(event.request, { ignoreSearch: true })
-            .then((cachedResponse) => {
-              if (cachedResponse) {
-                console.log("Serving reading list from cache (offline mode)");
-                return cachedResponse;
-              }
-              // If no cache available for GetReadingListData, return empty data
-              if (url.pathname === "/Page/GetReadingListData") {
-                return new Response(
-                  JSON.stringify({
-                    success: true,
-                    data: [],
-                    message: "Offline mode - no cached data available",
-                  }),
-                  {
-                    headers: { "Content-Type": "application/json" },
-                  }
-                );
-              }
-              // If no cache available for ReadingList page, return a basic offline page
-              if (url.pathname === "/Page/ReadingList") {
-                return new Response(
-                  `
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                    <title>Offline - Reading List</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <link rel="stylesheet" href="/css/site.css">
-                    <link rel="stylesheet" href="/css/pages/reading-list.css">
-                  </head>
-                  <body class="offline-mode">
-                    <div class="reading-list-container">
-                      <div class="page-header">
-                        <h1 class="page-title">Daftar Bacaan Saya</h1>
-                        <p class="page-subtitle">Mode Offline - Data tidak tersedia</p>
-                      </div>
-                      <div class="offline-message text-center py-5">
-                        <div class="offline-icon mb-3">
-                          <i class="bi bi-wifi-off fa-3x text-muted"></i>
-                        </div>
-                        <h3 class="text-muted">Tidak Ada Koneksi Internet</h3>
-                        <p class="text-muted mb-4">
-                          Reading list tidak tersedia saat offline.<br>
-                          Silakan periksa koneksi internet Anda dan coba lagi.
-                        </p>
-                        <button class="btn btn-primary" onclick="window.location.reload()">
-                          <i class="bi bi-arrow-clockwise"></i> Coba Lagi
-                        </button>
-                      </div>
-                    </div>
-                    <script>
-                      // Check for online status
-                      window.addEventListener('online', () => {
-                        window.location.reload();
-                      });
-                    </script>
-                  </body>
-                  </html>
-                `,
-                  {
-                    headers: { "Content-Type": "text/html" },
-                  }
-                );
-              }
-              throw new Error("No cache available");
-            });
-        })
-    );
-    return;
-  }
-
-  // Strategy 1: Cache First for Static Assets & CDNs
-  const isStaticAsset = STATIC_ASSETS.some(
-    (asset) => url.pathname === asset || event.request.url === asset
-  );
-
-  if (isStaticAsset || url.origin !== self.location.origin) {
-    event.respondWith(
-      caches
-        .match(event.request, { ignoreSearch: true })
-        .then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-
-          return fetch(event.request).then((networkResponse) => {
-            if (
-              networkResponse &&
-              (networkResponse.status === 200 ||
-                networkResponse.type === "opaque")
-            ) {
-              const responseClone = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseClone);
-              });
-            }
-            return networkResponse;
-          });
-        })
-    );
-    return;
-  }
-
-  // Strategy 2: Network First for Other Pages (HTML)
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        // Cache successful responses
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          networkResponse.type === "basic"
-        ) {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+// Helper function to generate offline reading list HTML
+function generateOfflineReadingListHTML() {
+  return `
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Daftar Bacaan Saya - Offline</title>
+      <link rel="stylesheet" href="/css/pages/lentera.css">
+      <link rel="stylesheet" href="/css/pages/reading-list.css">
+      <link rel="stylesheet" href="/css/site.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+      <style>
+        .offline-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
         }
-        return networkResponse;
-      })
-      .catch(() => {
-        // If network fails, try cache
-        return caches
-          .match(event.request, { ignoreSearch: true })
-          .then((cachedResponse) => {
-            if (cachedResponse) return cachedResponse;
-
-            // Fallback for navigation requests
-            if (event.request.mode === "navigate") {
-              // Try ReadingList first, then Home
-              return caches
-                .match("/Page/ReadingList")
-                .then((res) => res || caches.match("/"));
-            }
-          });
-      })
-  );
-});
+        .offline-content {
+          text-align: center;
+          max-width: 500px;
+        }
+        .offline-icon {
+          font-size: 4rem;
+          margin-bottom: 1.5rem;
+          opacity: 0.5;
+        }
+        .offline-title {
+          font-size: 1.75rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+        }
+        .offline-message {
+          font-size: 1rem;
+          opacity: 0.7;
+          margin-bottom: 2rem;
+        }
+        .btn-retry {
+          padding: 0.75rem 2rem;
+          font-size: 1rem;
+          font-weight: 500;
+          background: var(--primary-color, #6366f1);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .btn-retry:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+      </style>
+    </head>
+    <body>
+      <div class="offline-container">
+        <div class="offline-content">
+          <div class="offline-icon">
+            <i class="bi bi-wifi-off"></i>
+          </div>
+          <h1 class="offline-title">Tidak Ada Koneksi Internet</h1>
+          <p class="offline-message">
+            Halaman daftar bacaan memerlukan koneksi internet untuk memuat data.
+            Silakan periksa koneksi Anda dan coba lagi.
+          </p>
+          <button class="btn-retry" onclick="window.location.reload()">
+            <i class="bi bi-arrow-clockwise"></i> Coba Lagi
+          </button>
+        </div>
+      </div>
+      
+      <script>
+        // Auto-reload when connection is restored
+        window.addEventListener('online', () => {
+          console.log('Connection restored, reloading...');
+          window.location.reload();
+        });
+      </script>
+    </body>
+    </html>
+  `;
+}
