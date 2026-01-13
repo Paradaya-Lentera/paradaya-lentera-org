@@ -1,0 +1,129 @@
+/* Premium Alert Styles - SweetAlert Style */
+.premium-alert-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.premium-alert {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 450px;
+  background: rgba(var(--bg-rgb, 26, 31, 46), 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-xl);
+  transform: translateX(120%);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.premium-alert.show {
+  transform: translateX(0);
+}
+
+.premium-alert-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.premium-alert-content {
+  flex-grow: 1;
+}
+
+.premium-alert-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+  color: var(--text-primary);
+}
+
+.premium-alert-message {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.premium-alert-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.1rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  display: flex;
+}
+
+.premium-alert-close:hover {
+  opacity: 1;
+}
+
+/* Alert Types */
+.premium-alert-success {
+  border-left: 4px solid #10b981;
+}
+.premium-alert-success .premium-alert-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.premium-alert-error {
+  border-left: 4px solid #ef4444;
+}
+.premium-alert-error .premium-alert-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.premium-alert-info {
+  border-left: 4px solid #3b82f6;
+}
+.premium-alert-info .premium-alert-icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.premium-alert-warning {
+  border-left: 4px solid #f59e0b;
+}
+.premium-alert-warning .premium-alert-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+/* Progress Bar */
+.premium-alert-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.3;
+  width: 100%;
+  transform-origin: left;
+}
+
+/* Dark Mode Overrides (Assumes body.dark-mode or similar) */
+body.dark-mode .premium-alert {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+}

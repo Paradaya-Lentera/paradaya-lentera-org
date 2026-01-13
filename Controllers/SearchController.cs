@@ -173,9 +173,9 @@ namespace paradaya_lentera.Controllers
                 TempData[success ? "SuccessMessage" : (message.Contains("sudah ada") ? "InfoMessage" : "ErrorMessage")] = message;
                 
                 // Add cache-busting headers to ensure fresh reading list page
-                Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
-                Response.Headers.Add("Pragma", "no-cache");
-                Response.Headers.Add("Expires", "0");
+                Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                Response.Headers["Pragma"] = "no-cache";
+                Response.Headers["Expires"] = "0";
                 
                 return RedirectToAction("ReadingList", "Page");
             }
@@ -355,9 +355,16 @@ namespace paradaya_lentera.Controllers
         {
             var alreadyExists = await readingListService.IsInReadingListAsync(userId, book.Id);
             
+            // Clean the title to avoid encoding issues
+            var rawTitle = book.Title?.Trim() ?? "Unknown Title";
+            // Use just the raw title for logic, encoding happens at display time if needed
+            // But here we put it in TempData which will be Json Serialized, so raw string is better than HtmlEncoded string
+            // because Json.Serialize will handle quotes, and SweetAlert will handle display.
+            // If we HtmlEncode here, we might get double encoding or &amp; showing up.
+            
             if (alreadyExists)
             {
-                return (false, $"'{book.Title}' sudah ada di daftar bacaan Anda.", false);
+                return (false, $"'{rawTitle}' sudah ada di daftar bacaan Anda.", false);
             }
 
             var isNewBook = string.Equals(book.Source, "OpenLibrary", StringComparison.OrdinalIgnoreCase);
@@ -366,13 +373,21 @@ namespace paradaya_lentera.Controllers
             if (success)
             {
                 await cachedSearchService.InvalidateTopSavedBooksCacheAsync();
-                var message = isNewBook
-                    ? $"Berhasil menambahkan buku baru '{book.Title}' ke daftar bacaan!"
-                    : $"Berhasil menambahkan '{book.Title}' ke daftar bacaan!";
+                
+                string message;
+                if (isNewBook)
+                {
+                    message = $"Berhasil menambahkan buku baru '{rawTitle}' ke daftar bacaan!";
+                }
+                else
+                {
+                    message = $"Berhasil menambahkan '{rawTitle}' ke daftar bacaan!";
+                }
+                
                 return (true, message, isNewBook);
             }
 
-            return (false, $"Gagal menambahkan '{book.Title}' ke daftar bacaan.", isNewBook);
+            return (false, $"Gagal menambahkan '{rawTitle}' ke daftar bacaan.", isNewBook);
         }
         #endregion
 
