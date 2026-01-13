@@ -9,6 +9,7 @@ namespace paradaya_lentera.Services.Local
         Task<bool> RemoveFromReadingListAsync(int readingListId, int userId);
         Task<bool> IsInReadingListAsync(int userId, int bookId);
         Task<List<ReadingList>> GetUserReadingListAsync(int userId);
+        Task<(List<ReadingList> Items, int TotalCount)> GetUserReadingListPagedAsync(int userId, int page = 1, int pageSize = 9);
         Task<bool?> ToggleFavoriteAsync(int readingListId);
         Task<bool?> ToggleFavoriteAsync(int readingListId, int userId);
         Task<bool?> ToggleReadAsync(int readingListId);

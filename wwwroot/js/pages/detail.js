@@ -42,6 +42,13 @@ function toggleReadingList(bookId) {
               '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
           }
           if (text) text.textContent = "Hapus dari Daftar";
+          
+          // Show success notification for adding to reading list
+          if (typeof showReadingListNotification === 'function') {
+            showReadingListNotification("Berhasil menambahkan buku ke daftar bacaan!");
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification("Berhasil menambahkan buku ke daftar bacaan!", "primary");
+          }
         } else {
           btn.className = "btn-primary w-100 mb-2";
           if (icon) {
@@ -49,11 +56,21 @@ function toggleReadingList(bookId) {
               '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
           }
           if (text) text.textContent = "Tambahkan ke Daftar";
+          
+          // Show info notification for removing from reading list
+          if (typeof showInfoNotification === 'function') {
+            showInfoNotification("Buku telah dihapus dari daftar bacaan");
+          } else if (typeof showBootstrapNotification === 'function') {
+            showBootstrapNotification("Buku telah dihapus dari daftar bacaan", "info");
+          }
         }
-
-        // Success - no notification needed
       } else {
-        showAlert("Gagal mengubah daftar bacaan", "warning");
+        // Show error notification
+        if (typeof showErrorNotification === 'function') {
+          showErrorNotification("Gagal mengubah daftar bacaan");
+        } else if (typeof showBootstrapNotification === 'function') {
+          showBootstrapNotification("Gagal mengubah daftar bacaan", "danger");
+        }
       }
     },
     error: function (xhr) {
@@ -61,7 +78,12 @@ function toggleReadingList(bookId) {
         window.location.href =
           "/Auth/Login?returnUrl=" + encodeURIComponent(window.location.pathname + window.location.search);
       } else {
-        showAlert("Terjadi error saat memproses permintaan", "danger");
+        // Show error notification
+        if (typeof showErrorNotification === 'function') {
+          showErrorNotification("Terjadi error saat memproses permintaan");
+        } else if (typeof showBootstrapNotification === 'function') {
+          showBootstrapNotification("Terjadi error saat memproses permintaan", "danger");
+        }
       }
     },
     complete: function () {

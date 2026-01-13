@@ -126,30 +126,32 @@ public class PageController : Controller
 
     // READING LIST
     [Authorize]
-    public async Task<IActionResult> ReadingList()
+    public async Task<IActionResult> ReadingList(int page = 1)
     {
         // Set cache headers that allow caching but ensure revalidation when online
         Response.Headers.Add("Cache-Control", "max-age=0, must-revalidate");
         Response.Headers.Add("ETag", $"\"{DateTime.UtcNow.Ticks}\"");
         
         var userId = User.GetUserId();
-        var books = await _readingListService.GetUserReadingListAsync(userId);
-        return View(books);
+        var (items, totalCount) = await _readingListService.GetUserReadingListPagedAsync(userId, page, 9);
+        
+        var viewModel = ReadingListPagedViewModel.Create(items, totalCount, page, 9);
+        return View(viewModel);
     }
 
     // API endpoint for reading list data
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetReadingListData()
+    public async Task<IActionResult> GetReadingListData(int page = 1)
     {
         // Set cache headers that allow caching but ensure revalidation
         Response.Headers.Add("Cache-Control", "max-age=0, must-revalidate");
         Response.Headers.Add("ETag", $"\"{DateTime.UtcNow.Ticks}\"");
         
         var userId = User.GetUserId();
-        var books = await _readingListService.GetUserReadingListAsync(userId);
+        var (items, totalCount) = await _readingListService.GetUserReadingListPagedAsync(userId, page, 9);
         
-        var data = books.Select(item => new
+        var data = items.Select(item => new
         {
             id = item.Id,
             bookId = item.BookId,
@@ -163,7 +165,19 @@ public class PageController : Controller
             isRead = item.IsRead
         });
 
-        return Json(new { success = true, data });
+        var totalPages = (int)Math.Ceiling((double)totalCount / 9);
+
+        return Json(new { 
+            success = true, 
+            data,
+            pagination = new {
+                currentPage = page,
+                totalPages,
+                totalItems = totalCount,
+                hasNextPage = page < totalPages,
+                hasPreviousPage = page > 1
+            }
+        });
     }
 
     // ADD / REMOVE

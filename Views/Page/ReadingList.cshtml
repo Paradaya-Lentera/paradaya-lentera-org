@@ -1,4 +1,4 @@
-@model IEnumerable<paradaya_lentera.Models.Entities.ReadingList>
+@model paradaya_lentera.Models.ViewModels.ReadingListPagedViewModel
 @{
     ViewData["Title"] = "Daftar Bacaan Saya";
 }
@@ -8,14 +8,6 @@
 }
 
 <div class="reading-list-container">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title">Daftar Bacaan Saya</h1>
@@ -34,7 +26,7 @@
 
     <!-- Books Grid -->
     <div class="books-grid" id="readingListGrid">
-@foreach (var item in Model)
+@foreach (var item in Model.Items)
 {
     <div class="book-card"
      data-favorite="@item.IsFavorite.ToString().ToLower()"
@@ -93,8 +85,50 @@
 }
 </div>
 
+    <!-- Pagination -->
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination-wrapper">
+            @if (Model.HasPreviousPage)
+            {
+                <a href="@Url.Action("ReadingList", new { page = Model.CurrentPage - 1 })" style="text-decoration: none;">
+                    <button type="button">
+                        <span class="pagination-arrow">←</span>
+                        <span class="pagination-label">Prev</span>
+                    </button>
+                </a>
+            }
+            else
+            {
+                <button type="button" disabled>
+                    <span class="pagination-arrow">←</span>
+                    <span class="pagination-label">Prev</span>
+                </button>
+            }
+
+            <span id="pageInfo">Page @Model.CurrentPage of @Model.TotalPages</span>
+
+            @if (Model.HasNextPage)
+            {
+                <a href="@Url.Action("ReadingList", new { page = Model.CurrentPage + 1 })" style="text-decoration: none;">
+                    <button type="button">
+                        <span class="pagination-label">Next</span>
+                        <span class="pagination-arrow">→</span>
+                    </button>
+                </a>
+            }
+            else
+            {
+                <button type="button" disabled>
+                    <span class="pagination-label">Next</span>
+                    <span class="pagination-arrow">→</span>
+                </button>
+            }
+        </div>
+    }
+
     <!-- Empty State -->
-    <div class="empty-state" id="emptyState" style="@(Model.Any() ? "display: none;" : "display: block;")">
+    <div class="empty-state" id="emptyState" style="@(Model.Items.Any() ? "display: none;" : "display: block;")">
         <div class="empty-state-icon">📚</div>
         <h2 class="empty-state-title">Daftar bacaan kosong</h2>
         <p class="empty-state-text">Mulai tambahkan buku favorit Anda dari halaman pencarian</p>

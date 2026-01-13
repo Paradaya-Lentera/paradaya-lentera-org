@@ -72,6 +72,22 @@ namespace paradaya_lentera.Services.Local
                 .ToListAsync();
         }
 
+        public async Task<(List<ReadingList> Items, int TotalCount)> GetUserReadingListPagedAsync(int userId, int page = 1, int pageSize = 9)
+        {
+            var query = context.ReadingLists
+                .Include(x => x.Book)
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.AddedAt);
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
         public async Task<bool?> ToggleFavoriteAsync(int readingListId)
         {
             var item = await context.ReadingLists.FindAsync(readingListId);
