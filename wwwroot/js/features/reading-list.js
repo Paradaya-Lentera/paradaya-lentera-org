@@ -90,7 +90,7 @@ function showOfflineIndicator() {
     const indicator = document.createElement("div");
     indicator.className = "offline-indicator alert alert-info";
     indicator.innerHTML = `
-      <i class="fas fa-wifi"></i>
+      <i class="bi bi-wifi"></i>
       <strong>Mode Offline:</strong> Menampilkan data tersimpan. Beberapa fitur mungkin terbatas.
     `;
 
@@ -116,7 +116,7 @@ function showOfflineMessage() {
     offlineMessage.className = "offline-message text-center py-5";
     offlineMessage.innerHTML = `
       <div class="offline-icon mb-3">
-        <i class="fas fa-wifi-slash fa-3x text-muted"></i>
+        <i class="bi bi-wifi-off fa-3x text-muted"></i>
       </div>
       <h3 class="text-muted">Tidak Ada Koneksi Internet</h3>
       <p class="text-muted mb-4">
@@ -124,7 +124,7 @@ function showOfflineMessage() {
         Silakan periksa koneksi internet Anda dan coba lagi.
       </p>
       <button class="btn btn-primary" onclick="window.location.reload()">
-        <i class="fas fa-refresh"></i> Coba Lagi
+        <i class="bi bi-arrow-clockwise"></i> Coba Lagi
       </button>
     `;
 
@@ -256,7 +256,7 @@ function updateReadingListUI(books) {
         item.isRead ? "Tandai Belum Dibaca" : "Tandai Sudah Dibaca"
       }">
                     <i class="${
-                      item.isRead ? "fas fa-check-circle" : "far fa-circle"
+                      item.isRead ? "bi bi-check-circle-fill" : "bi bi-circle"
                     }"></i>
                 </button>
 
@@ -266,20 +266,20 @@ function updateReadingListUI(books) {
         item.isFavorite ? "Favorit" : "Tambah ke Favorit"
       }">
                     <i class="${
-                      item.isFavorite ? "fas fa-heart" : "far fa-heart"
+                      item.isFavorite ? "bi bi-heart-fill" : "bi bi-heart"
                     }"></i>
                 </button>
                 
                 <button class="btn-offline" onclick="toggleOffline(${
                   item.bookId
                 }, event)" title="Offline" id="offline-btn-${item.bookId}">
-                    <i class="fas fa-cloud"></i>
+                    <i class="bi bi-cloud-arrow-down"></i>
                 </button>
 
                 <button class="btn-remove" onclick="removeFromReadingList(${
                   item.id
                 }, event)" title="Hapus">
-                    <i class="fas fa-trash"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
             </div>
         </div>
@@ -454,11 +454,11 @@ function updateFavoriteUI(btn, icon, card, isFavorite) {
   if (isFavorite) {
     btn.classList.add("active");
     btn.title = "Hapus dari Favorit";
-    icon.className = "fas fa-heart";
+    icon.className = "bi bi-heart-fill";
   } else {
     btn.classList.remove("active");
     btn.title = "Tambah ke Favorit";
-    icon.className = "far fa-heart";
+    icon.className = "bi bi-heart";
   }
   card.setAttribute("data-favorite", isFavorite.toString().toLowerCase());
 }
@@ -468,11 +468,11 @@ function updateReadUI(btn, isRead) {
   if (isRead) {
     btn.classList.add("active");
     btn.title = "Tandai Belum Dibaca";
-    if (icon) icon.className = "fas fa-check-circle";
+    if (icon) icon.className = "bi bi-check-circle-fill";
   } else {
     btn.classList.remove("active");
     btn.title = "Tandai Sudah Dibaca";
-    if (icon) icon.className = "far fa-circle";
+    if (icon) icon.className = "bi bi-circle";
   }
 }
 
@@ -525,26 +525,26 @@ async function toggleOffline(bookId, event) {
       await removeFromCache(bookId);
       btn.classList.remove("cached");
       btn.title = "Simpan untuk offline";
-      icon.className = "fas fa-cloud";
+      icon.className = "bi bi-cloud-arrow-down";
       card.classList.remove("is-offline");
       showAlert("Buku dihapus dari offline storage", "info");
     } else {
       // Add to cache
       btn.disabled = true;
       btn.title = "Menyimpan...";
-      icon.className = "fas fa-spinner fa-spin";
+      icon.className = "bi bi-arrow-repeat spin";
 
       const success = await cacheBookForOffline(bookId);
 
       if (success) {
         btn.classList.add("cached");
         btn.title = "Tersedia offline";
-        icon.className = "fas fa-cloud-download-alt";
+        icon.className = "bi bi-cloud-check";
         card.classList.add("is-offline");
         showAlert("Buku disimpan untuk offline", "success");
       } else {
         btn.title = "Gagal menyimpan";
-        icon.className = "fas fa-exclamation-triangle";
+        icon.className = "bi bi-exclamation-triangle";
         showAlert("Gagal menyimpan buku untuk offline", "danger");
       }
 

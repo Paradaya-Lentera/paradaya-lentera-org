@@ -65,19 +65,19 @@
             <!-- Secondary Actions -->
             <div class="reading-list-actions">
                 <button class="btn-read-status @(item.IsRead ? "active" : "")" onclick="toggleRead(@item.Id, event)" title="@(item.IsRead ? "Tandai Belum Dibaca" : "Tandai Sudah Dibaca")">
-                    <i class="@(item.IsRead ? "fas fa-check-circle" : "far fa-circle")"></i>
+                    <i class="@(item.IsRead ? "bi bi-check-circle-fill" : "bi bi-circle")"></i>
                 </button>
 
                 <button class="btn-favorite @(item.IsFavorite ? "active" : "")" onclick="toggleFavorite(@item.Id, event)" title="@(item.IsFavorite ? "Favorit" : "Tambah ke Favorit")">
-                    <i class="@(item.IsFavorite ? "fas fa-heart" : "far fa-heart")"></i>
+                    <i class="@(item.IsFavorite ? "bi bi-heart-fill" : "bi bi-heart")"></i>
                 </button>
                 
                 <button class="btn-offline" onclick="toggleOffline(@item.BookId, event)" title="Offline" id="offline-btn-@item.BookId">
-                    <i class="fas fa-cloud"></i>
+                    <i class="bi bi-cloud-arrow-down"></i>
                 </button>
 
                 <button class="btn-remove" onclick="removeFromReadingList(@item.Id, event)" title="Hapus">
-                    <i class="fas fa-trash"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
             </div>
         </div>
@@ -133,7 +133,7 @@
         <h2 class="empty-state-title">Daftar bacaan kosong</h2>
         <p class="empty-state-text">Mulai tambahkan buku favorit Anda dari halaman pencarian</p>
         <button class="btn-add-book" onclick="window.location.href='/'">
-            <i class="fas fa-plus"></i> Cari Buku Online
+            <i class="bi bi-plus"></i> Cari Buku Online
         </button>
     </div>
 </div>

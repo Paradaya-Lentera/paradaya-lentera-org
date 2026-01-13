@@ -47,32 +47,32 @@
             primary: {
                 bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: '#ffffff',
-                icon: 'fas fa-bookmark'
+                icon: 'bi bi-bookmark'
             },
             success: {
                 bg: 'linear-gradient(135deg, #56ab2f 0%, #a8e063 100%)',
                 color: '#ffffff', 
-                icon: 'fas fa-check-circle'
+                icon: 'bi bi-check-circle-fill'
             },
             danger: {
                 bg: 'linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%)',
                 color: '#ffffff',
-                icon: 'fas fa-exclamation-circle'
+                icon: 'bi bi-exclamation-circle'
             },
             warning: {
                 bg: 'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)',
                 color: '#ffffff',
-                icon: 'fas fa-exclamation-triangle'
+                icon: 'bi bi-exclamation-triangle'
             },
             info: {
                 bg: 'linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)',
                 color: '#ffffff',
-                icon: 'fas fa-info-circle'
+                icon: 'bi bi-info-circle'
             },
             secondary: {
                 bg: 'linear-gradient(135deg, #485563 0%, #29323c 100%)',
                 color: '#ffffff',
-                icon: 'fas fa-bell'
+                icon: 'bi bi-bell'
             }
         };
 
@@ -283,14 +283,14 @@
 
     function getIcon(type) {
         const icons = {
-            success: '<i class="fas fa-check-circle text-success"></i>',
-            danger: '<i class="fas fa-exclamation-circle text-danger"></i>',
-            warning: '<i class="fas fa-exclamation-triangle text-warning"></i>',
-            info: '<i class="fas fa-info-circle text-info"></i>',
-            primary: '<i class="fas fa-bookmark text-primary"></i>',
-            secondary: '<i class="fas fa-bell text-secondary"></i>',
-            light: '<i class="fas fa-lightbulb text-light"></i>',
-            dark: '<i class="fas fa-moon text-dark"></i>'
+            success: '<i class="bi bi-check-circle-fill text-success"></i>',
+            danger: '<i class="bi bi-exclamation-circle text-danger"></i>',
+            warning: '<i class="bi bi-exclamation-triangle text-warning"></i>',
+            info: '<i class="bi bi-info-circle text-info"></i>',
+            primary: '<i class="bi bi-bookmark text-primary"></i>',
+            secondary: '<i class="bi bi-bell text-secondary"></i>',
+            light: '<i class="bi bi-lightbulb text-light"></i>',
+            dark: '<i class="bi bi-moon text-dark"></i>'
         };
         return icons[type] || icons.primary;
     }

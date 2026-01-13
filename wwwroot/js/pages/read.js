@@ -53,7 +53,7 @@ window.addEventListener("load", function () {
       const text = overlay.querySelector("p");
       if (text) {
         text.innerHTML =
-          '<i class="fas fa-wifi-slash"></i> Anda sedang offline. Konten buku mungkin tidak dapat dimuat.';
+          '<i class="bi bi-wifi-off"></i> Anda sedang offline. Konten buku mungkin tidak dapat dimuat.';
       }
       const spinner = overlay.querySelector(".spinner");
       if (spinner) spinner.style.display = "none";
