@@ -34,6 +34,8 @@ async function checkAndRefreshReadingList() {
 
 async function loadOfflineReadingList() {
   try {
+    let dataLoaded = false;
+    
     // First try to load from IndexedDB (more reliable for structured data)
     if (typeof DB !== "undefined") {
       const cachedItems = await DB.getAll("readingList");
@@ -53,30 +55,41 @@ async function loadOfflineReadingList() {
         }));
 
         updateReadingListUI(displayData);
-        showOfflineIndicator();
         console.log("Loaded reading list from IndexedDB (offline mode)");
-        return;
+        dataLoaded = true;
       }
     }
 
-    // Fallback: Try to load from cache
-    if ("caches" in window) {
-      const cache = await caches.open("lentera-offline-v5");
+    // Fallback: Try to load from cache if IndexedDB didn't work
+    if (!dataLoaded && "caches" in window) {
+      const cache = await caches.open("lentera-offline-v7");
       const cachedResponse = await cache.match("/Page/GetReadingListData");
 
       if (cachedResponse) {
         const result = await cachedResponse.json();
         if (result.success && result.data && result.data.length > 0) {
           updateReadingListUI(result.data);
-          showOfflineIndicator();
           console.log("Loaded reading list from cache (offline mode)");
-          return;
+          dataLoaded = true;
         }
       }
     }
 
-    // If no cache available, show offline message
-    showOfflineMessage();
+    // If no cache available or empty, show appropriate message
+    if (!dataLoaded) {
+      const currentGrid = document.querySelector("#readingListGrid");
+      const emptyState = document.getElementById("emptyState");
+      
+      if (currentGrid) {
+        currentGrid.style.display = "none";
+      }
+      
+      if (emptyState) {
+        emptyState.style.display = "block";
+      }
+      
+      console.log("No cached reading list data available");
+    }
   } catch (error) {
     console.error("Error loading offline reading list:", error);
     showOfflineMessage();
@@ -84,21 +97,8 @@ async function loadOfflineReadingList() {
 }
 
 function showOfflineIndicator() {
-  // Add offline indicator to the page
-  const existingIndicator = document.querySelector(".offline-indicator");
-  if (!existingIndicator) {
-    const indicator = document.createElement("div");
-    indicator.className = "offline-indicator alert alert-info";
-    indicator.innerHTML = `
-      <i class="bi bi-wifi"></i>
-      <strong>Mode Offline:</strong> Menampilkan data tersimpan. Beberapa fitur mungkin terbatas.
-    `;
-
-    const container = document.querySelector(".reading-list-container");
-    if (container) {
-      container.insertBefore(indicator, container.firstChild);
-    }
-  }
+  // Offline indicator removed - no visual indicator needed
+  console.log("App is in offline mode");
 }
 
 function showOfflineMessage() {
@@ -145,10 +145,8 @@ function hideOfflineMessage() {
 }
 
 function hideOfflineIndicator() {
-  const indicator = document.querySelector(".offline-indicator");
-  if (indicator) {
-    indicator.remove();
-  }
+  // No indicator to hide since we removed it
+  console.log("Offline indicator hidden");
 }
 
 async function refreshReadingListData() {
@@ -176,12 +174,20 @@ async function refreshReadingListData() {
       if (result.success && result.data) {
         updateReadingListUI(result.data);
         console.log("Reading list refreshed successfully");
+        
+        // Save to IndexedDB for offline use
+        await saveReadingListToDB();
+      } else if (result.offline) {
+        // Server indicated offline mode, load from cache
+        console.log("Server offline response, loading cached data");
+        await loadOfflineReadingList();
       }
     }
   } catch (error) {
     console.error("Failed to refresh reading list:", error);
-    // If refresh fails, we'll rely on cached data
-    console.log("Using cached reading list data as fallback");
+    // If refresh fails, try to load from cache
+    console.log("Network error, trying cached reading list data");
+    await loadOfflineReadingList();
   }
 }
 
@@ -193,7 +199,28 @@ function updateReadingListUI(books) {
 
   if (books.length === 0) {
     currentGrid.style.display = "none";
-    emptyState.style.display = "block";
+    if (emptyState) {
+      emptyState.style.display = "block";
+    } else {
+      // Create empty state if it doesn't exist
+      const emptyStateDiv = document.createElement("div");
+      emptyStateDiv.id = "emptyState";
+      emptyStateDiv.className = "empty-state text-center py-5";
+      emptyStateDiv.innerHTML = `
+        <div class="empty-icon mb-3">
+          <i class="bi bi-book fa-3x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Daftar Bacaan Kosong</h3>
+        <p class="text-muted mb-4">
+          Belum ada buku dalam daftar bacaan Anda.<br>
+          Mulai tambahkan buku favorit untuk dibaca nanti.
+        </p>
+        <a href="/Search" class="btn btn-primary">
+          <i class="bi bi-search"></i> Cari Buku
+        </a>
+      `;
+      currentGrid.parentNode.appendChild(emptyStateDiv);
+    }
     return;
   }
 
@@ -291,7 +318,7 @@ function updateReadingListUI(books) {
   // Update the grid
   currentGrid.innerHTML = booksHTML;
   currentGrid.style.display = "grid";
-  emptyState.style.display = "none";
+  if (emptyState) emptyState.style.display = "none";
 
   // Re-initialize images
   initializeImages(currentGrid);
@@ -485,7 +512,10 @@ function removeCardAnimation(target) {
     const remaining = document.querySelectorAll(".book-card");
     if (remaining.length === 0) {
       document.getElementById("readingListGrid").style.display = "none";
-      document.getElementById("emptyState").style.display = "block";
+      const emptyState = document.getElementById("emptyState");
+      if (emptyState) {
+        emptyState.style.display = "block";
+      }
     }
   }, 300);
 }
@@ -561,7 +591,7 @@ async function checkIsCached(bookId) {
   if (!("caches" in window)) return false;
 
   try {
-    const cache = await caches.open("lentera-offline-v5");
+    const cache = await caches.open("lentera-offline-v7");
     const bookUrl = `/Page/Read?id=${bookId}`;
     const response = await cache.match(bookUrl);
     return !!response;
@@ -578,7 +608,7 @@ async function cacheBookForOffline(bookId) {
   }
 
   try {
-    const cache = await caches.open("lentera-offline-v5");
+    const cache = await caches.open("lentera-offline-v7");
 
     // URLs to cache for this book
     const urlsToCache = [
@@ -625,7 +655,7 @@ async function cacheBookForOffline(bookId) {
 
 async function removeFromCache(bookId) {
   try {
-    const cache = await caches.open("lentera-offline-v5");
+    const cache = await caches.open("lentera-offline-v7");
 
     // URLs to remove from cache
     const urlsToRemove = [
@@ -760,6 +790,11 @@ async function saveReadingListToDB() {
       });
     }
   });
+
+  if (items.length === 0) {
+    console.log("No reading list items to save");
+    return;
+  }
 
   try {
     // Clear existing data first
@@ -933,12 +968,32 @@ function updateVisibilityStates(visibleCount) {
 
   if (visibleCount === 0) {
     grid.style.display = "none";
-    emptyState.style.display = "none";
-    noResultsState.style.display = "block";
+    if (emptyState) emptyState.style.display = "none";
+    if (noResultsState) {
+      noResultsState.style.display = "block";
+    } else {
+      // Create no results state if it doesn't exist
+      const noResultsDiv = document.createElement("div");
+      noResultsDiv.id = "noResultsState";
+      noResultsDiv.className = "no-results-state text-center py-5";
+      noResultsDiv.innerHTML = `
+        <div class="no-results-icon mb-3">
+          <i class="bi bi-search fa-3x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Tidak Ada Hasil</h3>
+        <p class="text-muted mb-4">
+          Tidak ditemukan buku yang sesuai dengan filter yang dipilih.
+        </p>
+        <button class="btn btn-outline-primary" onclick="clearFilters()">
+          <i class="bi bi-arrow-clockwise"></i> Reset Filter
+        </button>
+      `;
+      grid.parentNode.appendChild(noResultsDiv);
+    }
   } else {
     grid.style.display = "grid";
-    emptyState.style.display = "none";
-    noResultsState.style.display = "none";
+    if (emptyState) emptyState.style.display = "none";
+    if (noResultsState) noResultsState.style.display = "none";
   }
 }
 
@@ -1095,7 +1150,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   window.addEventListener("offline", () => {
     document.body.classList.add("offline-mode");
-    showOfflineIndicator();
   });
 
   // Check cached books

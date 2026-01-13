@@ -57,7 +57,91 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Handle messages from clients
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== "GET") return;
+
+  // Skip external requests (different origin)
+  if (url.origin !== location.origin) return;
+
+  // Handle reading list data with network-first strategy
+  if (url.pathname === "/Page/GetReadingListData") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            // Cache the fresh response
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, response.clone());
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try cache
+          return caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+              console.log("Serving reading list from cache (offline)");
+              return cachedResponse;
+            }
+            // If no cache, return offline response
+            return new Response(
+              JSON.stringify({
+                success: false,
+                error: "Offline - no cached data available",
+                offline: true
+              }),
+              {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+              }
+            );
+          });
+        })
+    );
+    return;
+  }
+
+  // Handle other page requests with cache-first for static assets, network-first for pages
+  const isStaticAsset = url.pathname.match(
+    /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|webm|mp4|ico)$/
+  ) || url.pathname.includes("/lib/");
+
+  if (isStaticAsset) {
+    // Cache-first for static assets
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        return cachedResponse || fetch(request).then((response) => {
+          if (response.ok) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, response.clone());
+            });
+          }
+          return response;
+        });
+      })
+    );
+  } else {
+    // Network-first for pages
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, response.clone());
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request);
+        })
+    );
+  }
+});
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "CLEAR_READING_LIST_CACHE") {
     // Clear reading list related caches only when there's an update

@@ -661,3 +661,104 @@ html[data-theme="dark"] .offline-indicator {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+
+/* ===========================
+   Offline Support Styles
+   =========================== */
+
+.offline-indicator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 500;
+}
+
+.offline-indicator i {
+  font-size: 1.2rem;
+}
+
+.offline-message {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  margin: var(--spacing-2xl) 0;
+}
+
+.offline-icon i {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.empty-state, .no-results-state {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  margin: var(--spacing-2xl) 0;
+}
+
+.empty-icon i, .no-results-icon i {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* Offline mode body styling */
+body.offline-mode {
+  position: relative;
+}
+
+/* Book card offline indicators */
+.book-card.is-offline {
+  position: relative;
+}
+
+.book-card.is-offline::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  border: 2px solid var(--card-bg);
+  z-index: 2;
+}
+
+.btn-offline.cached {
+  background: var(--accent-green) !important;
+  color: white !important;
+}
+
+.btn-offline.cached i {
+  color: white;
+}
+
+/* Spinning animation for loading */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive offline indicators */
+@media (max-width: 768px) {
+  .offline-indicator {
+    padding: var(--spacing-sm);
+    font-size: 0.9rem;
+  }
+  
+  .offline-message, .empty-state, .no-results-state {
+    padding: var(--spacing-xl);
+    margin: var(--spacing-lg) 0;
+  }
+}
