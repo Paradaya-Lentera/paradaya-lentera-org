@@ -208,19 +208,26 @@ function updateReadingListUI(books) {
       emptyStateDiv.className = "empty-state text-center py-5";
       emptyStateDiv.innerHTML = `
         <div class="empty-icon mb-3">
-          <i class="bi bi-book fa-3x text-muted"></i>
+          <lottie-player src="/images/empty.json" 
+                         background="transparent" 
+                         speed="1" 
+                         style="width: 250px; height: 250px; margin: 0 auto;" 
+                         loop 
+                         autoplay>
+          </lottie-player>
         </div>
-        <h3 class="text-muted">Daftar Bacaan Kosong</h3>
+        <h3 class="text-muted">Belum Ada Buku Yang Ditambahkan</h3>
         <p class="text-muted mb-4">
-          Belum ada buku dalam daftar bacaan Anda.<br>
           Mulai tambahkan buku favorit untuk dibaca nanti.
         </p>
-        <a href="/Search" class="btn btn-primary">
-          <i class="bi bi-search"></i> Cari Buku
+        <a href="/" class="btn-add-book">
+          <i class="bi bi-search"></i> Cari Buku Online
         </a>
       `;
       currentGrid.parentNode.appendChild(emptyStateDiv);
     }
+    const pagination = document.getElementById("paginationWrapper");
+    if (pagination) pagination.style.display = "none";
     return;
   }
 
@@ -313,6 +320,8 @@ function updateReadingListUI(books) {
   currentGrid.innerHTML = booksHTML;
   currentGrid.style.display = "grid";
   if (emptyState) emptyState.style.display = "none";
+  const pagination = document.getElementById("paginationWrapper");
+  if (pagination) pagination.style.display = "flex";
 
   // Re-initialize images
   initializeImages(currentGrid);
@@ -740,7 +749,11 @@ function handleSearch(event) {
     }
   });
 
-  updateVisibilityStates(visibleCount);
+  updateVisibilityStates(
+    visibleCount,
+    "Tidak Ada Hasil",
+    "Tidak ditemukan buku yang sesuai dengan pencarian Anda."
+  );
   updateStats();
 }
 
@@ -801,16 +814,18 @@ function clearFilters() {
   updateStats();
 }
 
-function updateVisibilityStates(visibleCount) {
+function updateVisibilityStates(visibleCount, title, message) {
   const grid = document.getElementById("readingListGrid");
   const emptyState = document.getElementById("emptyState");
   const noResultsState = document.getElementById("noResultsState");
 
   if (visibleCount === 0) {
     grid.style.display = "none";
-    if (emptyState) emptyState.style.display = "none";
     if (noResultsState) {
       noResultsState.style.display = "block";
+    } else if (emptyState) {
+      // Fallback: show the main empty state if noResultsState doesn't exist
+      emptyState.style.display = "block";
     } else {
       // Create no results state if it doesn't exist
       const noResultsDiv = document.createElement("div");
@@ -818,22 +833,29 @@ function updateVisibilityStates(visibleCount) {
       noResultsDiv.className = "no-results-state text-center py-5";
       noResultsDiv.innerHTML = `
         <div class="no-results-icon mb-3">
-          <i class="bi bi-search fa-3x text-muted"></i>
+          <lottie-player src="/images/empty.json" 
+                         background="transparent" 
+                         speed="1" 
+                         style="width: 250px; height: 250px; margin: 0 auto;" 
+                         loop 
+                         autoplay>
+          </lottie-player>
         </div>
-        <h3 class="text-muted">Tidak Ada Hasil</h3>
+        <h3 class="text-muted">Belum Ada Buku Yang Ditambahkan</h3>
         <p class="text-muted mb-4">
           Tidak ditemukan buku yang sesuai dengan filter yang dipilih.
         </p>
-        <button class="btn btn-outline-primary" onclick="clearFilters()">
-          <i class="bi bi-arrow-clockwise"></i> Reset Filter
-        </button>
       `;
       grid.parentNode.appendChild(noResultsDiv);
     }
+    const pagination = document.getElementById("paginationWrapper");
+    if (pagination) pagination.style.display = "none";
   } else {
     grid.style.display = "grid";
     if (emptyState) emptyState.style.display = "none";
     if (noResultsState) noResultsState.style.display = "none";
+    const pagination = document.getElementById("paginationWrapper");
+    if (pagination) pagination.style.display = "flex"; // and restore it when not empty
   }
 }
 
@@ -918,7 +940,19 @@ function initTabFiltering() {
         }
       });
 
-      updateVisibilityStates(visibleCount);
+      let title = "Belum Ada Buku Yang Ditambahkan";
+      let message =
+        "Tidak ditemukan buku yang sesuai dengan filter yang dipilih.";
+
+      if (filter === "Favorite") {
+        message = "Belum ada buku favorit yang ditambahkan.";
+      } else if (filter === "Read") {
+        message = "Belum ada buku yang selesai dibaca.";
+      } else if (filter === "Unread") {
+        message = "Belum ada buku yang belum dibaca.";
+      }
+
+      updateVisibilityStates(visibleCount, title, message);
       updateStats();
     });
   });

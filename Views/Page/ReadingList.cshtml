@@ -84,7 +84,7 @@
     <!-- Pagination -->
     @if (Model.TotalPages > 1)
     {
-        <div class="pagination-wrapper">
+        <div class="pagination-wrapper" id="paginationWrapper">
             @if (Model.HasPreviousPage)
             {
                 <a href="@Url.Action("ReadingList", new { page = Model.CurrentPage - 1 })" style="text-decoration: none;">
@@ -125,27 +125,20 @@
 
     <!-- Empty State -->
     <div class="empty-state" id="emptyState" style="@(Model.Items.Any() ? "display: none;" : "display: block;")">
-        <div class="empty-state-icon">📚</div>
-        <h2 class="empty-state-title">Daftar bacaan kosong</h2>
+        <div class="empty-state-icon">
+            <lottie-player src="/images/empty.json" 
+                           background="transparent" 
+                           speed="1" 
+                           style="width: 250px; height: 250px; margin: 0 auto;" 
+                           loop 
+                           autoplay>
+            </lottie-player>
+        </div>
+        <h2 class="empty-state-title">Belum Ada Buku Yang Ditambahkan</h2>
         <p class="empty-state-text">Mulai tambahkan buku favorit Anda dari halaman pencarian</p>
         <button class="btn-add-book" onclick="window.location.href='/'">
-            <i class="bi bi-plus"></i> Cari Buku Online
+            <i class="bi bi-search"></i> Cari Buku Online
         </button>
-    </div>
-
-    <!-- Empty State -->
-    <div id="emptyState" class="empty-state text-center py-5" style="display: none;">
-        <div class="empty-icon mb-3">
-            <i class="bi bi-book fa-3x text-muted"></i>
-        </div>
-        <h3 class="text-muted">Daftar Bacaan Kosong</h3>
-        <p class="text-muted mb-4">
-            Belum ada buku dalam daftar bacaan Anda.<br>
-            Mulai tambahkan buku favorit untuk dibaca nanti.
-        </p>
-        <a asp-controller="Search" asp-action="Index" class="btn btn-primary">
-            <i class="bi bi-search"></i> Cari Buku
-        </a>
     </div>
 </div>
 
