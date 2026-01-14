@@ -19,6 +19,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Use Local FontAwesome for consistency -->
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" asp-append-version="true" />
+    <!-- Bootstrap Icons for UI icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
     <link rel="stylesheet" href="~/css/pages/read.css" asp-append-version="true" />
 </head>
 <body>
@@ -34,6 +36,15 @@
                 </div>
             </div>
             <div class="header-right">
+                <a href="https://archive.org/download/@Model.IaId" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="action-icon-btn" 
+                   title="Download Buku" 
+                   id="btnDownload"
+                   data-iaid="@Model.IaId">
+                    <i class="bi bi-download"></i>
+                </a>
                 <a asp-controller="Page" asp-action="Detail" 
                    asp-route-id="@Model.LocalBookId" 
                    asp-route-isbn="@Model.Isbn" 
