@@ -577,7 +577,6 @@ html[data-theme="dark"] .offline-indicator {
 .empty-state-icon {
   font-size: 4rem;
   margin-bottom: var(--spacing-lg);
-  opacity: 0.6;
 }
 
 .empty-state-title {
@@ -604,7 +603,10 @@ html[data-theme="dark"] .offline-indicator {
   transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-sm);
+  min-width: 200px;
+  margin: 0 auto;
 }
 
 .btn-add-book:hover {
@@ -671,7 +673,6 @@ html[data-theme="dark"] .offline-indicator {
 .empty-icon i,
 .no-results-icon i {
   color: var(--text-muted);
-  opacity: 0.6;
 }
 
 /* Offline mode body styling */
