@@ -1,5 +1,9 @@
-const CACHE_NAME = "lentera-offline-v8"; // Increment version to force update
+const CACHE_NAME = "lentera-offline-v9"; // Increment version to force update
 const STATIC_ASSETS = [
+  // PWA & Core
+  "/manifest.json",
+  "/images/pwa-icon-512.png",
+
   // CSS
   "/css/fontawesome-fallback.css",
   "/css/pages/reading-list.css",
