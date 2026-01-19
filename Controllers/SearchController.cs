@@ -172,7 +172,6 @@ namespace paradaya_lentera.Controllers
 
                 TempData[success ? "SuccessMessage" : (message.Contains("sudah ada") ? "InfoMessage" : "ErrorMessage")] = message;
                 
-                // Add cache-busting headers to ensure fresh reading list page
                 Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
                 Response.Headers["Pragma"] = "no-cache";
                 Response.Headers["Expires"] = "0";
@@ -355,12 +354,7 @@ namespace paradaya_lentera.Controllers
         {
             var alreadyExists = await readingListService.IsInReadingListAsync(userId, book.Id);
             
-            // Clean the title to avoid encoding issues
             var rawTitle = book.Title?.Trim() ?? "Unknown Title";
-            // Use just the raw title for logic, encoding happens at display time if needed
-            // But here we put it in TempData which will be Json Serialized, so raw string is better than HtmlEncoded string
-            // because Json.Serialize will handle quotes, and SweetAlert will handle display.
-            // If we HtmlEncode here, we might get double encoding or &amp; showing up.
             
             if (alreadyExists)
             {
@@ -396,8 +390,6 @@ namespace paradaya_lentera.Controllers
         {
             var allBooks = new List<dynamic>();
             
-            // Use Daily Token for Consistent Caching
-            // The seed changes only once per day
             var seed = DateTime.UtcNow.Year * 1000 + DateTime.UtcNow.DayOfYear;
             var random = new Random(seed);
 
