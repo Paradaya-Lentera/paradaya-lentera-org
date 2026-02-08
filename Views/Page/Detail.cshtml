@@ -102,7 +102,7 @@
                         <a asp-controller="Auth" asp-action="Login" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString" class="btn-secondary btn-preview">
                             <i class="bi bi-lock"></i> Login untuk Baca
                         </a>
-                    }
+                    } 
                 }
                 else
                 {
@@ -167,7 +167,7 @@
 
             <!-- Synopsis -->
             <div class="synopsis-section">
-                <h2 class="section-title">Sinopsis</h2>
+                <h2 class="section-title" data-lang-id="Sinopsis" data-lang-en="Synopsis">Sinopsis</h2>
                 <div class="synopsis-text dynamic-data" id="bookSynopsis">
                     @if (Model.Synopsis != "-")
                     {
@@ -176,7 +176,13 @@
                             @if (Model.ShouldTruncateSynopsis())
                             {
                                 <p id="synopsisFull" style="display: none;">@Model.GetCleanSynopsis()</p>
-                                <button id="toggleSynopsis" class="btn-link" onclick="toggleSynopsisText()" style="color: #007bff; background: none; border: none; padding: 0; font-size: 0.9rem; cursor: pointer; margin-top: 0.5rem;">
+                                <button id="toggleSynopsis" class="btn-link"
+                                        data-lang-id="Lihat Selengkapnya"
+                                        data-lang-en="View More"
+                                        data-lang-less-id="Tampilkan Lebih Sedikit"
+                                        data-lang-less-en="Show Less"
+                                        onclick="toggleSynopsisText()"
+                                        style="color: #007bff; background: none; border: none; padding: 0; font-size: 0.9rem; cursor: pointer; margin-top: 0.5rem;">
                                     Lihat Selengkapnya
                                 </button>
                             }
@@ -184,7 +190,12 @@
                     }
                     else
                     {
-                        <p style="font-style: italic; color: #666;">
+                        <p style="font-style: italic; color: #666;"
+                           data-lang-id-local="Sinopsis tidak tersedia. Data sedang diperkaya dari Open Library..."
+                           data-lang-id-remote="Sinopsis tidak tersedia untuk buku ini."
+                           data-lang-en-local="Synopsis not available. Data is being enriched from Open Library..."
+                           data-lang-en-remote="Synopsis not available for this book."
+                           data-is-local="@Model.IsLocal.ToString().ToLower()">
                             @if (Model.IsLocal)
                             {
                                 @:Sinopsis tidak tersedia. Data sedang diperkaya dari Open Library...
@@ -252,16 +263,23 @@
             var short = document.getElementById('synopsisShort');
             var full = document.getElementById('synopsisFull');
             var btn = document.getElementById('toggleSynopsis');
-            
+            const lang = window.LanguageSwitcher ? window.LanguageSwitcher.getLanguage() : 'id';
+
             if (short && full) {
                 if (full.style.display === 'none') {
                     full.style.display = 'block';
                     short.style.display = 'none';
-                    btn.textContent = 'Tampilkan Lebih Sedikit';
+                    // Show "Show Less" text
+                    const lessTextId = btn.getAttribute('data-lang-less-id') || 'Tampilkan Lebih Sedikit';
+                    const lessTextEn = btn.getAttribute('data-lang-less-en') || 'Show Less';
+                    btn.textContent = lang === 'id' ? lessTextId : lessTextEn;
                 } else {
                     full.style.display = 'none';
                     short.style.display = 'block';
-                    btn.textContent = 'Lihat Selengkapnya';
+                    // Show "View More" text
+                    const moreTextId = btn.getAttribute('data-lang-id') || 'Lihat Selengkapnya';
+                    const moreTextEn = btn.getAttribute('data-lang-en') || 'View More';
+                    btn.textContent = lang === 'id' ? moreTextId : moreTextEn;
                 }
             }
         }
@@ -366,12 +384,18 @@
         function updateReadingListButton(isInReadingList) {
             const btn = document.getElementById('readingListBtn');
             if (btn) {
+                const lang = window.LanguageSwitcher ? window.LanguageSwitcher.getLanguage() : 'id';
+
                 if (isInReadingList) {
-                    btn.innerHTML = '<i class="bi bi-bookmark-fill"></i> Hapus dari Daftar';
+                    const removeTextId = 'Hapus dari Daftar';
+                    const removeTextEn = 'Remove from List';
+                    btn.innerHTML = `<i class="bi bi-bookmark-fill"></i> ${lang === 'id' ? removeTextId : removeTextEn}`;
                     btn.classList.remove('btn-add');
                     btn.classList.add('btn-remove');
                 } else {
-                    btn.innerHTML = '<i class="bi bi-bookmark"></i> Simpan Ke Daftar';
+                    const saveTextId = 'Simpan ke Daftar';
+                    const saveTextEn = 'Save to List';
+                    btn.innerHTML = `<i class="bi bi-bookmark"></i> ${lang === 'id' ? saveTextId : saveTextEn}`;
                     btn.classList.remove('btn-remove');
                     btn.classList.add('btn-add');
                 }
@@ -404,6 +428,35 @@
                     el.classList.add('loaded');
                 }
             });
+
+            // Update detail page buttons based on current language
+            if (window.LanguageSwitcher && typeof window.LanguageSwitcher.updateDetailPageButtons === 'function') {
+                const currentLang = window.LanguageSwitcher.getLanguage();
+                window.LanguageSwitcher.updateDetailPageButtons(currentLang);
+            }
+
+            // Update synopsis section based on current language
+            if (window.LanguageSwitcher && typeof window.LanguageSwitcher.updateSynopsis === 'function') {
+                const currentLang = window.LanguageSwitcher.getLanguage();
+                window.LanguageSwitcher.updateSynopsis(currentLang);
+            }
+        });
+
+        // Listen for language changes and update detail page buttons
+        document.addEventListener('languageChanged', (e) => {
+            if (typeof updateReadingListButton === 'function') {
+                const btn = document.getElementById('readingListBtn');
+                if (btn) {
+                    const isInList = btn.classList.contains('btn-remove');
+                    updateReadingListButton(isInList);
+                }
+            }
+            if (window.LanguageSwitcher && typeof window.LanguageSwitcher.updateDetailPageButtons === 'function') {
+                window.LanguageSwitcher.updateDetailPageButtons(e.detail.language);
+            }
+            if (window.LanguageSwitcher && typeof window.LanguageSwitcher.updateSynopsis === 'function') {
+                window.LanguageSwitcher.updateSynopsis(e.detail.language);
+            }
         });
     </script>
 }

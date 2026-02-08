@@ -275,6 +275,8 @@ class LazySearch {
 
   createAddToListForm(book, author, coverUrl, isbn) {
     const token = window.antiForgeryToken || "";
+    const currentLang = window.LanguageSwitcher ? window.LanguageSwitcher.getLanguage() : 'en';
+    const buttonText = currentLang === 'id' ? 'Tambah ke Daftar Bacaan' : 'Add to Reading List';
     return `
       <form action="/Search/AddToReadingList" method="post" style="display:inline;" onclick="event.stopPropagation();">
         <input type="hidden" name="__RequestVerificationToken" value="${token}" />
@@ -294,7 +296,7 @@ class LazySearch {
           book.number_of_pages_median || 0
         }" />
         <input type="hidden" name="isbn" value="${isbn}" />
-        <button type="submit" class="add-to-list">Tambah ke Daftar Bacaan</button>
+        <button type="submit" class="add-to-list">${buttonText}</button>
       </form>
     `;
   }
@@ -303,11 +305,13 @@ class LazySearch {
     const returnUrl = encodeURIComponent(
       window.location.pathname + window.location.search
     );
+    const currentLang = window.LanguageSwitcher ? window.LanguageSwitcher.getLanguage() : 'en';
+    const buttonText = currentLang === 'id' ? 'Login untuk Menambahkan' : 'Login to Add';
     return `
-      <a href="/Auth/Login?returnUrl=${returnUrl}" class="add-to-list" 
-         style="text-decoration: none; display: inline-block; text-align: center;" 
+      <a href="/Auth/Login?returnUrl=${returnUrl}" class="add-to-list"
+         style="text-decoration: none; display: inline-block; text-align: center;"
          onclick="event.stopPropagation();">
-        Login untuk Menambahkan
+        ${buttonText}
       </a>
     `;
   }
@@ -359,3 +363,25 @@ class LazySearch {
 
 // Initialize global instance
 window.lazySearch = new LazySearch();
+
+// Listen for language changes and update "Add to Reading List" buttons
+document.addEventListener('languageChanged', (e) => {
+  const lang = e.detail.language;
+  // Update all "Add to Reading List" buttons
+  const addToListButtons = document.querySelectorAll('.add-to-list');
+  const addToListTextId = 'Tambah ke Daftar Bacaan';
+  const addToListTextEn = 'Add to Reading List';
+  const loginTextId = 'Login untuk Menambahkan';
+  const loginTextEn = 'Login to Add';
+
+  addToListButtons.forEach(btn => {
+    const href = btn.getAttribute('href');
+    // Check if it's a login link or a submit button
+    if (href && href.includes('/Auth/Login')) {
+      btn.textContent = lang === 'id' ? loginTextId : loginTextEn;
+    } else {
+      btn.textContent = lang === 'id' ? addToListTextId : addToListTextEn;
+    }
+  });
+});
+

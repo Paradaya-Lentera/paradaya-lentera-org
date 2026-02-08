@@ -2,6 +2,46 @@
    Lentera - Button Components
    =========================== */
 
+/* Language Toggle */
+.lang-toggle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.lang-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 15px rgba(33, 150, 243, 0.2);
+  transform: translateY(-2px);
+}
+
+.lang-toggle:active {
+  transform: translateY(0) scale(0.9);
+}
+
+.lang-text {
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lang-toggle:hover .lang-text {
+  transform: scale(1.1);
+}
+
 /* Theme Toggle */
 .theme-toggle {
   position: relative;
