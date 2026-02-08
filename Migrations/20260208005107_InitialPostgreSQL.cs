@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace paradaya_lentera.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialPostgreSQL : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,20 +16,18 @@ namespace paradaya_lentera.Migrations
                 name: "Books",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Author = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Publisher = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Thumbnail = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", maxLength: 5000, nullable: true),
-                    PublishedYear = table.Column<int>(type: "int", nullable: true),
-                    PageCount = table.Column<int>(type: "int", nullable: true),
-                    IsFavorite = table.Column<bool>(type: "bit", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false),
-                    Isbn = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Source = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Author = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Publisher = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Category = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Thumbnail = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: true),
+                    PublishedYear = table.Column<int>(type: "integer", nullable: true),
+                    PageCount = table.Column<int>(type: "integer", nullable: true),
+                    Isbn = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    Source = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,12 +38,12 @@ namespace paradaya_lentera.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    FullName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,11 +54,13 @@ namespace paradaya_lentera.Migrations
                 name: "ReadingLists",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    BookId = table.Column<int>(type: "int", nullable: false),
-                    AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    IsFavorite = table.Column<bool>(type: "boolean", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    BookId = table.Column<int>(type: "integer", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,8 +83,7 @@ namespace paradaya_lentera.Migrations
                 name: "IX_Books_Isbn",
                 table: "Books",
                 column: "Isbn",
-                unique: true,
-                filter: "[Isbn] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReadingLists_BookId",

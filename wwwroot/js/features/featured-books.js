@@ -166,6 +166,12 @@ class FeaturedBooks {
 
     this.container.innerHTML = booksHTML;
 
+    // Update "Add to Reading List" button text based on current language
+    if (window.LanguageSwitcher && typeof window.LanguageSwitcher.updateAddToListButtons === 'function') {
+      const currentLang = window.LanguageSwitcher.getLanguage();
+      window.LanguageSwitcher.updateAddToListButtons(currentLang);
+    }
+
     // Setup image timeouts
     const images = this.container.querySelectorAll("img");
     images.forEach((img) => {

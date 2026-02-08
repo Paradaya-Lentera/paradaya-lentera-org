@@ -20,6 +20,14 @@ html[data-theme="light"] .nav-link.active {
   background-color: rgba(33, 150, 243, 0.1);
 }
 
+html[data-theme="light"] .lang-toggle {
+  background-color: transparent;
+}
+
+html[data-theme="light"] .lang-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 html[data-theme="light"] .theme-toggle {
   background-color: transparent;
 }

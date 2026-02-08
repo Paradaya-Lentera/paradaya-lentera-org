@@ -10,17 +10,17 @@
 <div class="reading-list-container">
     <!-- Page Header -->
     <div class="page-header">
-        <h1 class="page-title">Daftar Bacaan Saya</h1>
-        <p class="page-subtitle">Kelola perpustakaan pribadi dan progres membaca Anda.</p>
+        <h1 class="page-title" data-lang-id="Daftar Bacaan Saya" data-lang-en="My Reading List">Daftar Bacaan Saya</h1>
+        <p class="page-subtitle" data-lang-id="Kelola perpustakaan pribadi dan progres membaca Anda." data-lang-en="Manage your personal library and reading progress.">Kelola perpustakaan pribadi dan progres membaca Anda.</p>
     </div>
 
     <!-- Filters and Actions -->
     <div class="reading-list-header">
         <div class="tab-buttons">
-            <button class="tab-btn active" data-status="all">Semua</button>
-            <button class="tab-btn" data-status="Favorite">Favorit</button>
-            <button class="tab-btn" data-status="Read">Sudah Dibaca</button>
-            <button class="tab-btn" data-status="Unread">Belum Dibaca</button>
+            <button class="tab-btn active" data-status="all" data-lang-id="Semua" data-lang-en="All">Semua</button>
+            <button class="tab-btn" data-status="Favorite" data-lang-id="Favorit" data-lang-en="Favorites">Favorit</button>
+            <button class="tab-btn" data-status="Read" data-lang-id="Sudah Dibaca" data-lang-en="Read">Sudah Dibaca</button>
+            <button class="tab-btn" data-status="Unread" data-lang-id="Belum Dibaca" data-lang-en="Unread">Belum Dibaca</button>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
                  onerror="handleImageTimeout(this)">
             @if (item.IsRead)
             {
-                <div class="offline-badge" style="background: var(--accent-green);">SUDAH DIBACA</div>
+                <div class="offline-badge" style="background: var(--accent-green);" data-lang-id="SUDAH DIBACA" data-lang-en="READ">SUDAH DIBACA</div>
             }
         </div>
 
@@ -52,27 +52,51 @@
             <h3 class="book-title" onclick="viewBookDetail(@item.BookId)">@item.Book.Title</h3>
             <p class="book-author">@item.Book.Author @if(item.Book.PublishedYear.HasValue){<text> • @item.Book.PublishedYear</text>}</p>
             
-            <p class="book-description">
+            <p class="book-description"
+               data-pub-year="@item.Book.PublishedYear"
+               data-page-count="@item.Book.PageCount"
+               data-lang-id-prefix="Diterbitkan tahun "
+               data-lang-en-prefix="Published in "
+               data-lang-id-suffix=" halaman"
+               data-lang-en-suffix=" pages"
+               data-lang-id-unknown="Tahun terbit tidak diketahui"
+               data-lang-en-unknown="Year of publication unknown">
                 @(item.Book.PublishedYear.HasValue ? $"Diterbitkan tahun {item.Book.PublishedYear}" : "Tahun terbit tidak diketahui")@if(item.Book.PageCount.HasValue){<text>, @item.Book.PageCount halaman</text>}
             </p>
-            
+
             <div class="reading-list-primary-action">
-                <a asp-controller="Page" asp-action="Read" asp-route-id="@item.BookId" class="btn-read-full">
+                <a asp-controller="Page" asp-action="Read" asp-route-id="@item.BookId" class="btn-read-full" data-lang-id="BACA SEKARANG" data-lang-en="READ NOW">
                     BACA SEKARANG
                 </a>
             </div>
 
             <!-- Secondary Actions -->
             <div class="reading-list-actions">
-                <button class="btn-read-status @(item.IsRead ? "active" : "")" onclick="toggleRead(@item.Id, event)" title="@(item.IsRead ? "Tandai Belum Dibaca" : "Tandai Sudah Dibaca")">
+                <button class="btn-read-status @(item.IsRead ? "active" : "")"
+                        onclick="toggleRead(@item.Id, event)"
+                        title="@(item.IsRead ? "Tandai Belum Dibaca" : "Tandai Sudah Dibaca")"
+                        data-title-read-id="Tandai Belum Dibaca"
+                        data-title-read-en="Mark as Unread"
+                        data-title-unread-id="Tandai Sudah Dibaca"
+                        data-title-unread-en="Mark as Read">
                     <i class="@(item.IsRead ? "bi bi-check-circle-fill" : "bi bi-circle")"></i>
                 </button>
 
-                <button class="btn-favorite @(item.IsFavorite ? "active" : "")" onclick="toggleFavorite(@item.Id, event)" title="@(item.IsFavorite ? "Favorit" : "Tambah ke Favorit")">
+                <button class="btn-favorite @(item.IsFavorite ? "active" : "")"
+                        onclick="toggleFavorite(@item.Id, event)"
+                        title="@(item.IsFavorite ? "Favorit" : "Tambah ke Favorit")"
+                        data-title-fav-id="Favorit"
+                        data-title-fav-en="Favorite"
+                        data-title-unfav-id="Tambah ke Favorit"
+                        data-title-unfav-en="Add to Favorites">
                     <i class="@(item.IsFavorite ? "bi bi-heart-fill" : "bi bi-heart")"></i>
                 </button>
 
-                <button class="btn-remove" onclick="removeFromReadingList(@item.Id, event)" title="Hapus">
+                <button class="btn-remove"
+                        onclick="removeFromReadingList(@item.Id, event)"
+                        title="Hapus"
+                        data-title-remove-id="Hapus"
+                        data-title-remove-en="Remove">
                     <i class="bi bi-trash"></i>
                 </button>
             </div>
@@ -90,7 +114,7 @@
                 <a href="@Url.Action("ReadingList", new { page = Model.CurrentPage - 1 })" style="text-decoration: none;">
                     <button type="button">
                         <span class="pagination-arrow">←</span>
-                        <span class="pagination-label">Prev</span>
+                        <span class="pagination-label" data-lang-id="Sebelumnya" data-lang-en="Prev">Prev</span>
                     </button>
                 </a>
             }
@@ -98,17 +122,17 @@
             {
                 <button type="button" disabled>
                     <span class="pagination-arrow">←</span>
-                    <span class="pagination-label">Prev</span>
+                    <span class="pagination-label" data-lang-id="Sebelumnya" data-lang-en="Prev">Prev</span>
                 </button>
             }
 
-            <span id="pageInfo">Page @Model.CurrentPage of @Model.TotalPages</span>
+            <span id="pageInfo" data-lang-id-prefix="Halaman " data-lang-en-prefix="Page " data-lang-id-suffix=" dari " data-lang-en-suffix=" of " data-current-page="@Model.CurrentPage" data-total-pages="@Model.TotalPages">Page @Model.CurrentPage of @Model.TotalPages</span>
 
             @if (Model.HasNextPage)
             {
                 <a href="@Url.Action("ReadingList", new { page = Model.CurrentPage + 1 })" style="text-decoration: none;">
                     <button type="button">
-                        <span class="pagination-label">Next</span>
+                        <span class="pagination-label" data-lang-id="Selanjutnya" data-lang-en="Next">Next</span>
                         <span class="pagination-arrow">→</span>
                     </button>
                 </a>
@@ -116,7 +140,7 @@
             else
             {
                 <button type="button" disabled>
-                    <span class="pagination-label">Next</span>
+                    <span class="pagination-label" data-lang-id="Selanjutnya" data-lang-en="Next">Next</span>
                     <span class="pagination-arrow">→</span>
                 </button>
             }
@@ -126,17 +150,17 @@
     <!-- Empty State -->
     <div class="empty-state" id="emptyState" style="@(Model.Items.Any() ? "display: none;" : "display: block;")">
         <div class="empty-state-icon">
-            <lottie-player src="/images/empty.json" 
-                           background="transparent" 
-                           speed="1" 
-                           style="width: 250px; height: 250px; margin: 0 auto;" 
-                           loop 
+            <lottie-player src="/images/empty.json"
+                           background="transparent"
+                           speed="1"
+                           style="width: 250px; height: 250px; margin: 0 auto;"
+                           loop
                            autoplay>
             </lottie-player>
         </div>
-        <h2 class="empty-state-title">Belum Ada Buku Yang Ditambahkan</h2>
-        <p class="empty-state-text">Mulai tambahkan buku favorit Anda dari halaman pencarian</p>
-        <button class="btn-add-book" onclick="window.location.href='/'">
+        <h2 class="empty-state-title" data-lang-id="Belum Ada Buku Yang Ditambahkan" data-lang-en="No Books Added Yet">Belum Ada Buku Yang Ditambahkan</h2>
+        <p class="empty-state-text" data-lang-id="Mulai tambahkan buku favorit Anda dari halaman pencarian" data-lang-en="Start adding your favorite books from the search page">Mulai tambahkan buku favorit Anda dari halaman pencarian</p>
+        <button class="btn-add-book" onclick="window.location.href='/'" data-lang-id="Cari Buku Online" data-lang-en="Search Books Online">
             <i class="bi bi-search"></i> Cari Buku Online
         </button>
     </div>

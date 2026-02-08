@@ -125,7 +125,10 @@
     <script src="~/js/core/cache-manager.js"></script>
     
     @await RenderSectionAsync("Scripts", required: false)
-    
+
+    <!-- Language Switcher (load after page content) -->
+    <script src="~/js/components/language.js" asp-append-version="true"></script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
